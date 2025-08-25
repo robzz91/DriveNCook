@@ -1,0 +1,50 @@
+{
+  "app": {
+    "title": "Client Management"
+  },
+  "menu": {
+    "clients": "Client management",
+    "commandes": "Order management",
+    "plats": "Dish management",
+    "evenements": "Event management"
+  },
+  "form": {
+    "name": "Name",
+    "email": "Email",
+    "addClient": "Add client",
+    "selectClient": "Select a client",
+    "addPoints": "Add points",
+    "nomPlat": "Dish name",
+    "prix": "Price (€)",
+    "ajouterPlat": "Add dish",
+    "selectPlat": "Select a dish",
+    "placeOrder": "Place order",
+    "title": "Title",
+    "description": "Description",
+    "date": "Date",
+    "location": "Location",
+    "addEvenement": "Add event",
+    "payer": "Pay",
+    "addPlat": "Add dish",
+    "titre": "Title",
+    "paid": "Paid"
+  },
+  "list": {
+    "clients": "Client list",
+    "plats": "Dish list",
+    "commandes": "Order list",
+    "evenements": "Event list"
+  },
+  "clients": {
+    "title": "Client Management"
+  },
+  "plats": {
+    "title": "Dish Management"
+  },
+  "commandes": {
+    "title": "Place an Order"
+  },
+  "evenements": {
+    "title": "Event Management"
+  }
+}
