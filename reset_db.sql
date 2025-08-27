@@ -1,0 +1,14 @@
+SET FOREIGN_KEY_CHECKS=0;
+
+TRUNCATE TABLE commande_lignes;
+TRUNCATE TABLE paiements;
+TRUNCATE TABLE avis_clients;
+TRUNCATE TABLE historique_points;
+TRUNCATE TABLE cartes_fidelite;
+TRUNCATE TABLE commandes;
+TRUNCATE TABLE plats;
+TRUNCATE TABLE livreurs;
+TRUNCATE TABLE clients;
+TRUNCATE TABLE evenements;
+
+SET FOREIGN_KEY_CHECKS=1;
