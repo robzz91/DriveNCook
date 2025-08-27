@@ -1,7 +1,21 @@
-FROM php:8.3-fpm
+FROM php:8.2-fpm
+
+# Installer dépendances
 RUN apt-get update && apt-get install -y \
-    git unzip libzip-dev libpng-dev libicu-dev libonig-dev libxml2-dev \
- && docker-php-ext-install pdo pdo_mysql intl gd
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-WORKDIR /var/www/html
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+    curl zip unzip git libzip-dev \
+    && docker-php-ext-install pdo_mysql zip
+
+# Installer Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Définir le dossier de travail
+WORKDIR /var/www
+
+# Copier les fichiers Laravel
+COPY . .
+
+# Installer les dépendances Laravel
+RUN composer install
+
+# Lancer le serveur
+CMD php artisan serve --host=0.0.0.0 --port=8000

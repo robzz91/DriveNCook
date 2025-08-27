@@ -1,12 +1,23 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { defineStore } from "pinia";
+import { api } from "@/api";
 
-export const useEvenementStore = defineStore('evenementStore', () => {
-  const evenements = ref([])
-
-  const ajouterEvenement = (evenement) => {
-    evenements.value.push(evenement)
-  }
-
-  return { evenements, ajouterEvenement }
-})
+export const useEvenementStore = defineStore("evenementStore", {
+  state: () => ({
+    items: [],
+    loading: false,
+    error: "",
+  }),
+  actions: {
+    async fetchAll() {
+      this.loading = true; this.error = "";
+      try {
+        const { data } = await api.get("/evenements");
+        this.items = data;
+      } catch (e) {
+        this.error = e?.message || "Erreur chargement événements";
+      } finally {
+        this.loading = false;
+      }
+    },
+  },
+});

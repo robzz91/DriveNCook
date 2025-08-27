@@ -1,33 +1,23 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { defineStore } from "pinia";
+import { api } from "@/api";
 
-export const useClientStore = defineStore('clientStore', () => {
-  const clients = ref([])
-  let idCounter = 1
-
-  // Ajoute un nouveau client avec une carte de fidélité
-  function ajouterClient(nom, email) {
-    clients.value.push({
-      id: idCounter++,
-      nom,
-      email,
-      carte: {
-        points: 0,
-      },
-    })
-  }
-
-  // Ajoute des points de fidélité à un client existant
-  function ajouterPoints(clientId, points) {
-    const client = clients.value.find(c => c.id === clientId)
-    if (client) {
-      client.carte.points += parseInt(points)
-    }
-  }
-
-  return {
-    clients,
-    ajouterClient,
-    ajouterPoints,
-  }
-})
+export const useClientStore = defineStore("clientStore", {
+  state: () => ({
+    items: [],
+    loading: false,
+    error: "",
+  }),
+  actions: {
+    async fetchAll() {
+      this.loading = true; this.error = "";
+      try {
+        const { data } = await api.get("/clients");
+        this.items = data;
+      } catch (e) {
+        this.error = e?.message || "Erreur chargement clients";
+      } finally {
+        this.loading = false;
+      }
+    },
+  },
+});

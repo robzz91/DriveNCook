@@ -1,24 +1,23 @@
-// src/stores/commandeStore.js
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia";
+import { api } from "@/api";
 
-export const useCommandeStore = defineStore('commande', {
+export const useCommandeStore = defineStore("commandeStore", {
   state: () => ({
-    commandes: [],
-    paiements: []
+    items: [],
+    loading: false,
+    error: "",
   }),
   actions: {
-    ajouterCommande(commande) {
-      this.commandes.push(commande)
-    },
-    simulerPaiement(commandeId) {
-      const commande = this.commandes.find(c => c.id === commandeId)
-      if (commande) {
-        this.paiements.push({
-          id: commandeId,
-          statut: 'payé',
-          date: new Date().toLocaleString()
-        })
+    async fetchAll() {
+      this.loading = true; this.error = "";
+      try {
+        const { data } = await api.get("/commandes");
+        this.items = data;
+      } catch (e) {
+        this.error = e?.message || "Erreur chargement commandes";
+      } finally {
+        this.loading = false;
       }
-    }
-  }
-})
+    },
+  },
+});
