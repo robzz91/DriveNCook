@@ -8,4 +8,6 @@ class Evenement extends Model
 {
     protected $table = 'evenements';
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    protected $fillable = ['titre','description','date_evenement'];
+
 }

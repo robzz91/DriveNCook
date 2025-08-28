@@ -3,51 +3,62 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
-    // GET /api/clients
-    public function index(): JsonResponse
+    public function index()
     {
-        return response()->json(Client::orderBy('id')->get());
+        return response()->json(Client::orderBy('id')->get(), 200);
     }
 
-    // GET /api/clients/{client}
-    public function show(Client $client): JsonResponse
+    public function store(Request $request)
     {
-        return response()->json($client);
-    }
-
-    // POST /api/clients
-    public function store(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'nom'   => 'required|string|max:100',
-            'email' => 'required|email|max:150|unique:clients,email',
+        $data = $request->validate([
+            'nom'   => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:clients,email'],
         ]);
 
-        $client = Client::create($validated);
+        $client = Client::create($data);
+
         return response()->json($client, 201);
     }
 
-    // PUT /api/clients/{client}
-    public function update(Request $request, Client $client): JsonResponse
+    public function show(int $id)
     {
-        $validated = $request->validate([
-            'nom'   => 'required|string|max:100',
-            'email' => 'required|email|max:150|unique:clients,email,'.$client->id,
-        ]);
-
-        $client->update($validated);
-        return response()->json($client);
+        $client = Client::find($id);
+        if (!$client) {
+            return response()->json(['message' => 'Client not found'], 404);
+        }
+        return response()->json($client, 200);
     }
 
-    // DELETE /api/clients/{client}
-    public function destroy(Client $client): JsonResponse
+    public function update(Request $request, int $id)
     {
+        $client = Client::find($id);
+        if (!$client) {
+            return response()->json(['message' => 'Client not found'], 404);
+        }
+
+        $data = $request->validate([
+            'nom'   => ['sometimes', 'required', 'string', 'max:255'],
+            'email' => ['sometimes', 'required', 'email', 'max:255', 'unique:clients,email,' . $client->id],
+        ]);
+
+        $client->fill($data)->save();
+
+        return response()->json($client, 200);
+    }
+
+    public function destroy(int $id)
+    {
+        $client = Client::find($id);
+        if (!$client) {
+            return response()->json(['message' => 'Client not found'], 404);
+        }
+
         $client->delete();
-        return response()->json(['deleted' => true]);
+
+        return response()->json(['deleted' => true], 200);
     }
 }

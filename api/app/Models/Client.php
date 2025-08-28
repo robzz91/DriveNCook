@@ -7,5 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Client extends Model
 {
     protected $table = 'clients';
-    protected $fillable = ['nom', 'email'];
+
+    protected $fillable = [
+        'nom',
+        'email',
+    ];
+
+    public $timestamps = true;
 }

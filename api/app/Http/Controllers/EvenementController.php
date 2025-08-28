@@ -3,59 +3,48 @@
 namespace App\Http\Controllers;
 
 use App\Models\Evenement;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Http\Response;
 
 class EvenementController extends Controller
 {
-    private function filter(Evenement $model, array $data): array
+    public function index()
     {
-        $cols = Schema::getColumnListing($model->getTable());
-        $allowed = array_flip(array_diff($cols, ['id','created_at','updated_at']));
-        return array_intersect_key($data, $allowed);
+        return response()->json(Evenement::orderBy('date_evenement','desc')->get());
     }
 
-    public function index(): JsonResponse
+    public function store(Request $request)
     {
-        return response()->json(Evenement::orderByDesc('id')->get());
+        $data = $request->validate([
+            'titre'          => 'required|string|max:255',
+            'description'    => 'nullable|string',
+            'date_evenement' => 'required|date',
+        ]);
+
+        $evt = Evenement::create($data);
+
+        return response()->json($evt, Response::HTTP_CREATED);
     }
 
-    public function show(Evenement $evenement): JsonResponse
+    public function show(Evenement $evenement)
     {
         return response()->json($evenement);
     }
 
-    public function store(Request $request): JsonResponse
+    public function update(Request $request, Evenement $evenement)
     {
-        // Validation très souple -> adapte si tu connais exactement tes colonnes
-        $request->validate([
-            'titre' => 'sometimes|string|max:150',
-            'nom'   => 'sometimes|string|max:150',
-            'date'  => 'sometimes|date',
+        $data = $request->validate([
+            'titre'          => 'sometimes|string|max:255',
+            'description'    => 'sometimes|nullable|string',
+            'date_evenement' => 'sometimes|date',
         ]);
 
-        $data = $this->filter(new Evenement, $request->all());
-        $evt = Evenement::create($data);
-
-        return response()->json($evt, 201);
-    }
-
-    public function update(Request $request, Evenement $evenement): JsonResponse
-    {
-        $request->validate([
-            'titre' => 'sometimes|string|max:150',
-            'nom'   => 'sometimes|string|max:150',
-            'date'  => 'sometimes|date',
-        ]);
-
-        $data = $this->filter($evenement, $request->all());
         $evenement->update($data);
 
         return response()->json($evenement);
     }
 
-    public function destroy(Evenement $evenement): JsonResponse
+    public function destroy(Evenement $evenement)
     {
         $evenement->delete();
         return response()->json(['deleted' => true]);

@@ -7,15 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Commande extends Model
 {
     protected $table = 'commandes';
-    protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    public function client()
-    {
-        return $this->belongsTo(Client::class, 'client_id');
-    }
+    protected $fillable = ['client_id','status','paye','total_ht','total_ttc'];
 
-    public function lignes()
+    public function lignes(){ return $this->hasMany(\App\Models\CommandeLigne::class,'commande_id'); }
+
+
+    public function paiements()
     {
-        return $this->hasMany(CommandeLigne::class, 'commande_id');
+        return $this->hasMany(Paiement::class);
     }
 }

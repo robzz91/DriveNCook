@@ -31,4 +31,9 @@ return [
         ],
     ],
 
+    'webhooks' => [
+        'secret' => env('WEBHOOK_SECRET', 'dev-secret'),
+        'target' => env('WEBHOOK_TARGET', 'http://localhost:8000/api/webhooks/payments'),
+    ],
+
 ];

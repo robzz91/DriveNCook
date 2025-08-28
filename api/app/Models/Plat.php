@@ -9,6 +9,8 @@ class Plat extends Model
     protected $table = 'plats';
     // on garde large et on filtre côté contrôleur
     protected $guarded = ['id', 'created_at', 'updated_at'];
+    protected $fillable = ['nom','description','prix'];
+
 
     public function lignes()
     {
