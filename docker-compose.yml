@@ -39,7 +39,7 @@ services:
     networks:
       - drivncook-net
 
-  nginx: # ✅ Ici c’est correct maintenant
+  nginx:
     image: nginx:1.25
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
