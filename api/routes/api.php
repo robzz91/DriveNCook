@@ -15,10 +15,16 @@ Route::prefix('auth')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 });
 
-// ✅ CRUD protégé par Sanctum
-Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('clients', ClientController::class);
-    Route::apiResource('plats', PlatController::class);
-    Route::apiResource('commandes', CommandeController::class);
-    Route::apiResource('evenements', EvenementController::class);
-});
+// Test routes protected by roles (example only)
+Route::middleware(['auth:sanctum','role:admin'])->get('/admin/ping', fn () => response()->json(['pong' => 'admin']));
+Route::middleware(['auth:sanctum','role:franchisee'])->get('/franchisee/ping', fn () => response()->json(['pong' => 'franchisee']));
+
+// CRUD REST
+Route::apiResource('clients', ClientController::class);
+Route::apiResource('plats', PlatController::class);
+Route::apiResource('evenements', EvenementController::class);
+Route::apiResource('commandes', CommandeController::class);
+
+// Paiement simulé + webhook (si tu utilises cette partie)
+Route::post('/payments/simulate', [PaymentController::class, 'simulate']);
+Route::post('/webhooks/payments', [WebhookController::class, 'payments']);

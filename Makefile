@@ -1,4 +1,4 @@
-up: ; docker compose up -d
+up: ; docker compose up -d --build
 down: ; docker compose down
 api-shell: ; docker compose exec api bash
-db-cli: ; docker compose exec db mysql -udrivn -pdrivnpass drivncook
+db-cli: ; docker compose exec db mysql -udrivnuser -pdrivnpass drivncook_m2
