@@ -1,25 +1,33 @@
-<script setup>
-import { useI18n } from "vue-i18n";
-const { t, locale } = useI18n();
-</script>
-
 <template>
-  <nav class="nav">
-    <router-link to="/clients">{{ t('menu.clients') }}</router-link>
-    <router-link to="/commandes">{{ t('menu.commandes') }}</router-link>
-    <router-link to="/plats">{{ t('menu.plats') }}</router-link>
-    <router-link to="/evenements">{{ t('menu.evenements') }}</router-link>
-
-    <span class="spacer"></span>
-
-    <button @click="locale.value='fr'">FR</button>
-    <button @click="locale.value='en'">EN</button>
+  <nav>
+    <ul>
+      <li><router-link to="/clients">Clients</router-link></li>
+      <li><router-link to="/plats">Plats</router-link></li>
+      <li><router-link to="/commandes">Commandes</router-link></li>
+      <li><router-link to="/evenements">Événements</router-link></li>
+    </ul>
   </nav>
 </template>
 
+<script setup>
+</script>
+
 <style scoped>
-.nav { display:flex; gap:1rem; padding:0.75rem 1rem; border-bottom:1px solid #ddd; }
-.spacer { flex:1; }
-a.router-link-active { font-weight: 700; }
-button { padding: .25rem .5rem; }
+nav {
+  background: #333;
+  padding: 10px;
+}
+ul {
+  display: flex;
+  list-style: none;
+  gap: 15px;
+}
+a {
+  color: white;
+  text-decoration: none;
+}
+a.router-link-active {
+  font-weight: bold;
+  text-decoration: underline;
+}
 </style>

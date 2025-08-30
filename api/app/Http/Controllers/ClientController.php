@@ -1,64 +1,19 @@
-<?php
-
-namespace App\Http\Controllers;
-
-use App\Models\Client;
-use Illuminate\Http\Request;
-
-class ClientController extends Controller
+public function store(Request $request)
 {
-    public function index()
-    {
-        return response()->json(Client::orderBy('id')->get(), 200);
+    $validated = $request->validate([
+        'nom' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:clients',
+        'password' => 'nullable|string|min:6',
+    ]);
+
+    // Si pas de password fourni → on met NULL
+    if (!isset($validated['password'])) {
+        $validated['password'] = null;
+    } else {
+        $validated['password'] = Hash::make($validated['password']);
     }
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'nom'   => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:clients,email'],
-        ]);
+    $client = Client::create($validated);
 
-        $client = Client::create($data);
-
-        return response()->json($client, 201);
-    }
-
-    public function show(int $id)
-    {
-        $client = Client::find($id);
-        if (!$client) {
-            return response()->json(['message' => 'Client not found'], 404);
-        }
-        return response()->json($client, 200);
-    }
-
-    public function update(Request $request, int $id)
-    {
-        $client = Client::find($id);
-        if (!$client) {
-            return response()->json(['message' => 'Client not found'], 404);
-        }
-
-        $data = $request->validate([
-            'nom'   => ['sometimes', 'required', 'string', 'max:255'],
-            'email' => ['sometimes', 'required', 'email', 'max:255', 'unique:clients,email,' . $client->id],
-        ]);
-
-        $client->fill($data)->save();
-
-        return response()->json($client, 200);
-    }
-
-    public function destroy(int $id)
-    {
-        $client = Client::find($id);
-        if (!$client) {
-            return response()->json(['message' => 'Client not found'], 404);
-        }
-
-        $client->delete();
-
-        return response()->json(['deleted' => true], 200);
-    }
+    return response()->json($client, 201);
 }

@@ -1,39 +1,24 @@
 <template>
-  <div class="client-list">
-    <h2>Liste des clients</h2>
+  <div>
+    <h2>Liste des plats</h2>
+    <button @click="fetchPlats">Recharger</button>
     <ul>
-      <li v-for="client in clients" :key="client.email">
-        {{ client.nom }} - {{ client.email }}
+      <li v-for="plat in plats" :key="plat.id">
+        {{ plat.nom }} - {{ plat.prix }} €
+        <button @click="deletePlat(plat.id)">❌</button>
       </li>
     </ul>
   </div>
 </template>
 
 <script setup>
-import { useClientStore } from '@/stores/clientStore'
+import { onMounted } from "vue";
+import { usePlatStore } from "../stores/platStore";
 
-const store = useClientStore()
-const clients = store.clients
+const store = usePlatStore();
+const { plats, fetchPlats, deletePlat } = store;
+
+onMounted(() => {
+  fetchPlats();
+});
 </script>
-
-<style scoped>
-.client-list {
-  margin: 2rem auto;
-  max-width: 400px;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-h2 {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-ul {
-  list-style: none;
-  padding: 0;
-}
-li {
-  padding: 0.5rem;
-  border-bottom: 1px solid #eee;
-}
-</style>

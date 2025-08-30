@@ -1,22 +1,41 @@
 import { defineStore } from "pinia";
-import { api } from "@/api";
+import api from "../api";
 
-export const useEvenementStore = defineStore("evenementStore", {
+export const useEvenementStore = defineStore("evenement", {
   state: () => ({
-    items: [],
+    evenements: [],
     loading: false,
-    error: "",
+    error: null,
   }),
+
   actions: {
-    async fetchAll() {
-      this.loading = true; this.error = "";
+    async fetchEvenements() {
+      this.loading = true;
       try {
-        const { data } = await api.get("/evenements");
-        this.items = data;
-      } catch (e) {
-        this.error = e?.message || "Erreur chargement événements";
+        const response = await api.get("/evenements");
+        this.evenements = response.data;
+      } catch (err) {
+        this.error = err.response?.data?.message || "Erreur chargement événements";
       } finally {
         this.loading = false;
+      }
+    },
+
+    async addEvenement(evenement) {
+      try {
+        const response = await api.post("/evenements", evenement);
+        this.evenements.push(response.data);
+      } catch (err) {
+        this.error = err.response?.data?.message || "Erreur ajout événement";
+      }
+    },
+
+    async deleteEvenement(id) {
+      try {
+        await api.delete(`/evenements/${id}`);
+        this.evenements = this.evenements.filter(e => e.id !== id);
+      } catch (err) {
+        this.error = err.response?.data?.message || "Erreur suppression événement";
       }
     },
   },

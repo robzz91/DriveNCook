@@ -1,25 +1,24 @@
 <template>
   <div>
-    <h2>{{ $t('commandesTitle') }}</h2>
-
+    <h2>Liste des commandes</h2>
+    <button @click="fetchCommandes">Recharger</button>
     <ul>
       <li v-for="commande in commandes" :key="commande.id">
-        {{ commande.plat }} - {{ commande.client }}
-        <span v-if="commande.paye">✅ {{ $t('paye') }}</span>
-        <button v-else @click="payer(commande)">{{ $t('payer') }}</button>
+        Commande #{{ commande.id }} - Client {{ commande.client_id }} - Total: {{ commande.total_ttc }} €
+        <button @click="deleteCommande(commande.id)">❌</button>
       </li>
     </ul>
   </div>
 </template>
 
 <script setup>
-import { useCommandeStore } from '../stores/commandeStore'
-import { storeToRefs } from 'pinia'
+import { onMounted } from "vue";
+import { useCommandeStore } from "../stores/commandeStore";
 
-const store = useCommandeStore()
-const { commandes } = storeToRefs(store)
+const store = useCommandeStore();
+const { commandes, fetchCommandes, deleteCommande } = store;
 
-function payer(commande) {
-  commande.paye = true
-}
+onMounted(() => {
+  fetchCommandes();
+});
 </script>
