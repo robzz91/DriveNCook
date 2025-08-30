@@ -1,22 +1,41 @@
 import { defineStore } from "pinia";
-import { api } from "@/api";
+import api from "../api";
 
-export const usePlatStore = defineStore("platStore", {
+export const usePlatStore = defineStore("plat", {
   state: () => ({
-    items: [],
+    plats: [],
     loading: false,
-    error: "",
+    error: null,
   }),
+
   actions: {
-    async fetchAll() {
-      this.loading = true; this.error = "";
+    async fetchPlats() {
+      this.loading = true;
       try {
-        const { data } = await api.get("/plats");
-        this.items = data;
-      } catch (e) {
-        this.error = e?.message || "Erreur chargement plats";
+        const response = await api.get("/plats");
+        this.plats = response.data;
+      } catch (err) {
+        this.error = err.response?.data?.message || "Erreur lors du chargement";
       } finally {
         this.loading = false;
+      }
+    },
+
+    async addPlat(plat) {
+      try {
+        const response = await api.post("/plats", plat);
+        this.plats.push(response.data);
+      } catch (err) {
+        this.error = err.response?.data?.message || "Erreur ajout plat";
+      }
+    },
+
+    async deletePlat(id) {
+      try {
+        await api.delete(`/plats/${id}`);
+        this.plats = this.plats.filter(p => p.id !== id);
+      } catch (err) {
+        this.error = err.response?.data?.message || "Erreur suppression plat";
       }
     },
   },

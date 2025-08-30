@@ -4,141 +4,127 @@ namespace App\Http\Controllers;
 
 use App\Models\Commande;
 use App\Models\CommandeLigne;
-use Illuminate\Http\JsonResponse;
+use App\Models\Plat;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 
 class CommandeController extends Controller
 {
-    private function setStatusField(array &$data)
+    public function index(Request $request)
     {
-        // s'adapte si la colonne s'appelle 'status' ou 'statut'
-        $cols = Schema::getColumnListing('commandes');
-        if (array_key_exists('status', $data) && in_array('status', $cols)) return;
-        if (array_key_exists('statut', $data) && in_array('statut', $cols)) return;
-        if (in_array('status', $cols) && isset($data['statut'])) { $data['status'] = $data['statut']; unset($data['statut']); }
-        if (in_array('statut', $cols) && isset($data['status'])) { $data['statut'] = $data['status']; unset($data['status']); }
-    }
+        $q = Commande::query()->with('lignes');
 
-    private function totalsFromLines(array $lignes): array
-    {
-        $total_ht = 0;
-        foreach ($lignes as $l) {
-            $q = (int)($l['quantite'] ?? 0);
-            $pu = (float)($l['prix_unitaire'] ?? 0);
-            $total_ht += $q * $pu;
+        if ($request->filled('client_id')) {
+            $q->where('client_id', (int)$request->input('client_id'));
         }
-        // si tu as une TVA, adapte ici
-        $total_ttc = $total_ht;
-        return compact('total_ht','total_ttc');
+        if ($request->filled('status')) {
+            $q->where('status', $request->input('status'));
+        }
+
+        return response()->json($q->orderByDesc('id')->get());
     }
 
-    public function index(): JsonResponse
+    public function store(Request $request)
     {
-        $cmds = Commande::with(['client','lignes.plat'])->orderByDesc('id')->get();
-        return response()->json($cmds);
-    }
-
-    public function show(Commande $commande): JsonResponse
-    {
-        $commande->load(['client','lignes.plat']);
-        return response()->json($commande);
-    }
-
-    public function store(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'client_id' => 'required|integer|exists:clients,id',
-            'status'    => 'nullable|string|max:50',
-            'statut'    => 'nullable|string|max:50',
+        $data = $request->validate([
+            'client_id' => 'required|exists:clients,id',
+            'status'    => ['nullable', 'string', Rule::in(['brouillon','validee','annulee'])],
             'lignes'    => 'required|array|min:1',
-            'lignes.*.plat_id'       => 'required|integer|exists:plats,id',
-            'lignes.*.quantite'      => 'required|integer|min:1',
-            'lignes.*.prix_unitaire' => 'required|numeric|min:0',
+            'lignes.*.plat_id'  => 'required|exists:plats,id',
+            'lignes.*.quantite' => 'required|integer|min:1',
         ]);
 
-        $this->setStatusField($validated);
+        $commande = null;
 
-        DB::beginTransaction();
-        try {
-            $totaux = $this->totalsFromLines($validated['lignes']);
-            $commande = Commande::create(array_merge(
-                ['client_id' => $validated['client_id']],
-                $totaux,
-                array_intersect_key($validated, array_flip(['status','statut']))
-            ));
+        DB::transaction(function () use (&$commande, $data) {
+            $commande = Commande::create([
+                'client_id' => $data['client_id'],
+                'status'    => $data['status'] ?? 'brouillon',
+                'paye'      => 0,
+                'total_ht'  => 0,
+                'total_ttc' => 0,
+            ]);
 
-            foreach ($validated['lignes'] as $l) {
-                CommandeLigne::create([
-                    'commande_id'  => $commande->id,
-                    'plat_id'      => $l['plat_id'],
-                    'quantite'     => $l['quantite'],
-                    'prix_unitaire'=> $l['prix_unitaire'],
-                    'total_ligne'  => $l['quantite'] * $l['prix_unitaire'],
-                ]);
-            }
-
-            $commande->load(['client','lignes.plat']);
-            DB::commit();
-            return response()->json($commande, 201);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function update(Request $request, Commande $commande): JsonResponse
-    {
-        $validated = $request->validate([
-            'status'    => 'sometimes|string|max:50',
-            'statut'    => 'sometimes|string|max:50',
-            'lignes'    => 'sometimes|array|min:1',
-            'lignes.*.plat_id'       => 'required_with:lignes|integer|exists:plats,id',
-            'lignes.*.quantite'      => 'required_with:lignes|integer|min:1',
-            'lignes.*.prix_unitaire' => 'required_with:lignes|numeric|min:0',
-        ]);
-
-        $this->setStatusField($validated);
-
-        DB::beginTransaction();
-        try {
-            // Maj du statut si fourni
-            $fields = array_intersect_key($validated, array_flip(['status','statut']));
-            if (!empty($fields)) $commande->update($fields);
-
-            // Si nouvelles lignes -> on remplace, puis recalcule les totaux
-            if (!empty($validated['lignes'])) {
-                $commande->lignes()->delete();
-                foreach ($validated['lignes'] as $l) {
-                    CommandeLigne::create([
-                        'commande_id'  => $commande->id,
-                        'plat_id'      => $l['plat_id'],
-                        'quantite'     => $l['quantite'],
-                        'prix_unitaire'=> $l['prix_unitaire'],
-                        'total_ligne'  => $l['quantite'] * $l['prix_unitaire'],
-                    ]);
-                }
-                $totaux = $this->totalsFromLines($validated['lignes']);
-                $commande->update($totaux);
-            }
-
-            $commande->load(['client','lignes.plat']);
-            DB::commit();
-            return response()->json($commande);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function destroy(Commande $commande): JsonResponse
-    {
-        DB::transaction(function () use ($commande) {
-            $commande->lignes()->delete();
-            $commande->delete();
+            $this->replaceLignes($commande, $data['lignes']);
         });
 
+        return response()->json($commande->load('lignes'), Response::HTTP_CREATED);
+    }
+
+    public function show(Commande $commande)
+    {
+        return response()->json($commande->load('lignes'));
+    }
+
+    public function update(Request $request, Commande $commande)
+    {
+        $data = $request->validate([
+            'client_id' => 'sometimes|exists:clients,id',
+            'status'    => ['sometimes','string', Rule::in(['brouillon','validee','annulee'])],
+            'paye'      => 'sometimes|boolean',
+            'lignes'    => 'sometimes|array|min:1',
+            'lignes.*.plat_id'  => 'required_with:lignes|exists:plats,id',
+            'lignes.*.quantite' => 'required_with:lignes|integer|min:1',
+        ]);
+
+        DB::transaction(function () use ($commande, $data) {
+            if (array_key_exists('client_id', $data)) $commande->client_id = $data['client_id'];
+            if (array_key_exists('status', $data))    $commande->status    = $data['status'];
+            if (array_key_exists('paye', $data))      $commande->paye      = $data['paye'];
+            $commande->save();
+
+            if (array_key_exists('lignes', $data)) {
+                $this->replaceLignes($commande, $data['lignes']);
+            } else {
+                $this->recalcTotals($commande);
+            }
+        });
+
+        return response()->json($commande->load('lignes'));
+    }
+
+    public function destroy(Commande $commande)
+    {
+        $commande->lignes()->delete(); // si pas de FK ON DELETE CASCADE
+        $commande->delete();
+
         return response()->json(['deleted' => true]);
+    }
+
+    /** Remplace toutes les lignes de la commande, puis recalcule les totaux */
+    private function replaceLignes(Commande $commande, array $lignes): void
+    {
+        $commande->lignes()->delete();
+
+        foreach ($lignes as $l) {
+            $plat = Plat::find($l['plat_id']);
+            if (!$plat) continue;
+
+            $qte  = (int)$l['quantite'];
+            $pu   = (float)$plat->prix;
+            $tot  = round($pu * $qte, 2);
+
+            $commande->lignes()->create([
+                'plat_id'       => $plat->id,
+                'quantite'      => $qte,
+                'prix_unitaire' => $pu,
+                'total_ligne'   => $tot,
+            ]);
+        }
+
+        $this->recalcTotals($commande);
+    }
+
+    /** total_ht = somme(total_ligne), total_ttc = total_ht (ajoute TVA si besoin) */
+    private function recalcTotals(Commande $commande): void
+    {
+        $commande->load('lignes');
+        $totalHt = $commande->lignes->sum('total_ligne');
+
+        $commande->total_ht  = round((float)$totalHt, 2);
+        $commande->total_ttc = round((float)$totalHt, 2); // ajoute *1.2 si TVA 20%
+        $commande->save();
     }
 }
