@@ -4,49 +4,42 @@ namespace App\Http\Controllers;
 
 use App\Models\Plat;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class PlatController extends Controller
 {
     public function index()
     {
-        return response()->json(Plat::orderBy('id')->get());
+        return response()->json(Plat::all(), 200);
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'nom'         => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'prix'        => 'required|numeric|min:0',
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'prix' => 'required|numeric|min:0'
         ]);
 
-        $plat = Plat::create($data);
+        $plat = Plat::create($request->all());
 
-        return response()->json($plat, Response::HTTP_CREATED);
+        return response()->json($plat, 201);
     }
 
-    public function show(Plat $plat)
+    public function show($id)
     {
-        return response()->json($plat);
+        $plat = Plat::findOrFail($id);
+        return response()->json($plat, 200);
     }
 
-    public function update(Request $request, Plat $plat)
+    public function update(Request $request, $id)
     {
-        $data = $request->validate([
-            'nom'         => 'sometimes|string|max:255',
-            'description' => 'sometimes|nullable|string',
-            'prix'        => 'sometimes|numeric|min:0',
-        ]);
-
-        $plat->update($data);
-
-        return response()->json($plat);
+        $plat = Plat::findOrFail($id);
+        $plat->update($request->all());
+        return response()->json($plat, 200);
     }
 
-    public function destroy(Plat $plat)
+    public function destroy($id)
     {
-        $plat->delete();
-        return response()->json(['deleted' => true]);
+        Plat::destroy($id);
+        return response()->json(['message' => 'Plat supprimé'], 200);
     }
 }

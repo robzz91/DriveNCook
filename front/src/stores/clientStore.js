@@ -1,42 +1,35 @@
+// src/stores/clientStore.js
 import { defineStore } from "pinia";
-import api from "@/api";
+import api from "../api";
 
 export const useClientStore = defineStore("clientStore", {
   state: () => ({
-    items: [],
-    loading: false,
-    error: "",
+    clients: [],
   }),
   actions: {
-    async fetchAll() {
-      this.loading = true;
-      this.error = "";
+    async fetchClients() {
       try {
-        const { data } = await api.get("/clients");
-        this.items = data;
-      } catch (e) {
-        this.error = e?.message || "Erreur chargement clients";
-      } finally {
-        this.loading = false;
+        const response = await api.get("/clients");
+        this.clients = response.data;
+      } catch (error) {
+        console.error("Erreur lors du chargement des clients", error);
       }
     },
-
     async addClient(client) {
       try {
-        const { data } = await api.post("/clients", client);
-        this.items.push(data);
-      } catch (e) {
-        this.error = e?.message || "Erreur ajout client";
+        const response = await api.post("/clients", client);
+        this.clients.push(response.data);
+      } catch (error) {
+        console.error("Erreur lors de l’ajout d’un client", error);
       }
     },
-
     async deleteClient(id) {
       try {
         await api.delete(`/clients/${id}`);
-        this.items = this.items.filter(c => c.id !== id);
-      } catch (e) {
-        this.error = e?.message || "Erreur suppression client";
+        this.clients = this.clients.filter(c => c.id !== id);
+      } catch (error) {
+        console.error("Erreur lors de la suppression du client", error);
       }
-    },
-  },
+    }
+  }
 });

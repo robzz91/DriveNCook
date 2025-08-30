@@ -1,24 +1,39 @@
 <template>
   <div>
-    <h2>Liste des commandes</h2>
-    <button @click="fetchCommandes">Recharger</button>
-    <ul>
-      <li v-for="commande in commandes" :key="commande.id">
-        Commande #{{ commande.id }} - Client {{ commande.client_id }} - Total: {{ commande.total_ttc }} €
-        <button @click="deleteCommande(commande.id)">❌</button>
-      </li>
-    </ul>
+    <table>
+      <thead>
+        <tr>
+          <th>{{ $t("commandes.id") }}</th>
+          <th>{{ $t("commandes.client") }}</th>
+          <th>{{ $t("commandes.status") }}</th>
+          <th>{{ $t("actions.title") }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="commande in commandes" :key="commande.id">
+          <td>{{ commande.id }}</td>
+          <td>{{ commande.client_id }}</td>
+          <td>{{ commande.status }}</td>
+          <td>
+            <button @click="deleteCommande(commande.id)">
+              {{ $t("actions.delete") }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
-<script setup>
+<script>
+import { useCommandeStore } from "@/stores/commandeStore";
 import { onMounted } from "vue";
-import { useCommandeStore } from "../stores/commandeStore";
 
-const store = useCommandeStore();
-const { commandes, fetchCommandes, deleteCommande } = store;
-
-onMounted(() => {
-  fetchCommandes();
-});
+export default {
+  setup() {
+    const store = useCommandeStore();
+    onMounted(() => store.fetchCommandes());
+    return { commandes: store.commandes, deleteCommande: store.deleteCommande };
+  }
+};
 </script>

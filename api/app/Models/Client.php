@@ -2,24 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 
-class Client extends Model
+class Client extends Authenticatable
 {
-    use HasFactory;
+    use Notifiable;
 
-    // Nom de la table
     protected $table = 'clients';
 
-    // Colonnes modifiables
     protected $fillable = [
         'nom',
         'email',
         'password',
     ];
 
-    // Cacher le mot de passe dans les retours JSON
     protected $hidden = [
         'password',
         'remember_token',

@@ -1,42 +1,35 @@
+// src/stores/commandeStore.js
 import { defineStore } from "pinia";
 import api from "../api";
 
-export const useCommandeStore = defineStore("commande", {
+export const useCommandeStore = defineStore("commandeStore", {
   state: () => ({
     commandes: [],
-    loading: false,
-    error: null,
   }),
-
   actions: {
     async fetchCommandes() {
-      this.loading = true;
       try {
         const response = await api.get("/commandes");
         this.commandes = response.data;
-      } catch (err) {
-        this.error = err.response?.data?.message || "Erreur chargement commandes";
-      } finally {
-        this.loading = false;
+      } catch (error) {
+        console.error("Erreur lors du chargement des commandes", error);
       }
     },
-
     async addCommande(commande) {
       try {
         const response = await api.post("/commandes", commande);
         this.commandes.push(response.data);
-      } catch (err) {
-        this.error = err.response?.data?.message || "Erreur ajout commande";
+      } catch (error) {
+        console.error("Erreur lors de l’ajout d’une commande", error);
       }
     },
-
     async deleteCommande(id) {
       try {
         await api.delete(`/commandes/${id}`);
         this.commandes = this.commandes.filter(c => c.id !== id);
-      } catch (err) {
-        this.error = err.response?.data?.message || "Erreur suppression commande";
+      } catch (error) {
+        console.error("Erreur lors de la suppression de la commande", error);
       }
-    },
-  },
+    }
+  }
 });

@@ -1,20 +1,45 @@
 {
   "menu": {
-    "clients": "Gestion des clients",
-    "commandes": "Gestion des commandes",
-    "plats": "Gestion des plats",
-    "evenements": "Gestion des événements"
+    "clients": "Clients",
+    "commandes": "Commandes",
+    "evenements": "Événements",
+    "plats": "Plats"
+  },
+  "clients": {
+    "title": "Gestion des Clients",
+    "list": "Liste des clients",
+    "add": "Ajouter un client",
+    "name": "Nom",
+    "email": "Email",
+    "selectClient": "Choisir un client"
+  },
+  "commandes": {
+    "title": "Gestion des Commandes",
+    "list": "Liste des commandes",
+    "add": "Ajouter une commande",
+    "id": "ID",
+    "client": "Client",
+    "status": "Statut",
+    "plat": "Plat",
+    "passerCommande": "Passer la commande"
   },
   "evenements": {
-    "title": "Gestion des événements"
+    "title": "Gestion des Événements",
+    "list": "Liste des événements",
+    "add": "Ajouter un événement",
+    "name": "Nom",
+    "date": "Date"
   },
-  "form": {
-    "titre": "Titre",
-    "description": "Description",
-    "date": "Date",
-    "addEvenement": "Ajouter l'événement"
+  "plats": {
+    "title": "Gestion des Plats",
+    "list": "Liste des plats",
+    "add": "Ajouter un plat",
+    "name": "Nom",
+    "price": "Prix"
   },
-  "list": {
-    "evenements": "Liste des événements"
+  "actions": {
+    "title": "Actions",
+    "delete": "Supprimer",
+    "add": "Ajouter"
   }
 }

@@ -1,24 +1,37 @@
 <template>
   <div>
-    <h2>Liste des événements</h2>
-    <button @click="fetchEvenements">Recharger</button>
-    <ul>
-      <li v-for="event in evenements" :key="event.id">
-        {{ event.titre }} - {{ event.date_evenement }}
-        <button @click="deleteEvenement(event.id)">❌</button>
-      </li>
-    </ul>
+    <table>
+      <thead>
+        <tr>
+          <th>{{ $t("evenements.name") }}</th>
+          <th>{{ $t("evenements.date") }}</th>
+          <th>{{ $t("actions.title") }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="evt in evenements" :key="evt.id">
+          <td>{{ evt.nom }}</td>
+          <td>{{ evt.date }}</td>
+          <td>
+            <button @click="deleteEvenement(evt.id)">
+              {{ $t("actions.delete") }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
-<script setup>
+<script>
+import { useEvenementStore } from "@/stores/evenementStore";
 import { onMounted } from "vue";
-import { useEvenementStore } from "../stores/evenementStore";
 
-const store = useEvenementStore();
-const { evenements, fetchEvenements, deleteEvenement } = store;
-
-onMounted(() => {
-  fetchEvenements();
-});
+export default {
+  setup() {
+    const store = useEvenementStore();
+    onMounted(() => store.fetchEvenements());
+    return { evenements: store.evenements, deleteEvenement: store.deleteEvenement };
+  }
+};
 </script>

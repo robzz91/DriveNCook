@@ -1,20 +1,45 @@
 {
   "menu": {
-    "clients": "Client management",
-    "commandes": "Order management",
-    "plats": "Dish management",
-    "evenements": "Event management"
+    "clients": "Clients",
+    "commandes": "Orders",
+    "evenements": "Events",
+    "plats": "Dishes"
+  },
+  "clients": {
+    "title": "Client Management",
+    "list": "Client list",
+    "add": "Add a client",
+    "name": "Name",
+    "email": "Email",
+    "selectClient": "Select a client"
+  },
+  "commandes": {
+    "title": "Order Management",
+    "list": "Order list",
+    "add": "Add an order",
+    "id": "ID",
+    "client": "Client",
+    "status": "Status",
+    "plat": "Dish",
+    "passerCommande": "Place order"
   },
   "evenements": {
-    "title": "Event management"
+    "title": "Event Management",
+    "list": "Event list",
+    "add": "Add an event",
+    "name": "Name",
+    "date": "Date"
   },
-  "form": {
-    "titre": "Title",
-    "description": "Description",
-    "date": "Date",
-    "addEvenement": "Add event"
+  "plats": {
+    "title": "Dish Management",
+    "list": "Dish list",
+    "add": "Add a dish",
+    "name": "Name",
+    "price": "Price"
   },
-  "list": {
-    "evenements": "Event list"
+  "actions": {
+    "title": "Actions",
+    "delete": "Delete",
+    "add": "Add"
   }
 }

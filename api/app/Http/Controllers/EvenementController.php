@@ -4,49 +4,43 @@ namespace App\Http\Controllers;
 
 use App\Models\Evenement;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class EvenementController extends Controller
 {
     public function index()
     {
-        return response()->json(Evenement::orderBy('date_evenement','desc')->get());
+        return response()->json(Evenement::all(), 200);
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'titre'          => 'required|string|max:255',
-            'description'    => 'nullable|string',
-            'date_evenement' => 'required|date',
+        $request->validate([
+            'titre' => 'required|string|max:255',
+            'date' => 'required|date',
+            'description' => 'nullable|string'
         ]);
 
-        $evt = Evenement::create($data);
+        $evenement = Evenement::create($request->all());
 
-        return response()->json($evt, Response::HTTP_CREATED);
+        return response()->json($evenement, 201);
     }
 
-    public function show(Evenement $evenement)
+    public function show($id)
     {
-        return response()->json($evenement);
+        $evenement = Evenement::findOrFail($id);
+        return response()->json($evenement, 200);
     }
 
-    public function update(Request $request, Evenement $evenement)
+    public function update(Request $request, $id)
     {
-        $data = $request->validate([
-            'titre'          => 'sometimes|string|max:255',
-            'description'    => 'sometimes|nullable|string',
-            'date_evenement' => 'sometimes|date',
-        ]);
-
-        $evenement->update($data);
-
-        return response()->json($evenement);
+        $evenement = Evenement::findOrFail($id);
+        $evenement->update($request->all());
+        return response()->json($evenement, 200);
     }
 
-    public function destroy(Evenement $evenement)
+    public function destroy($id)
     {
-        $evenement->delete();
-        return response()->json(['deleted' => true]);
+        Evenement::destroy($id);
+        return response()->json(['message' => 'Événement supprimé'], 200);
     }
 }

@@ -1,24 +1,36 @@
 <template>
   <div>
-    <h2>Liste des plats</h2>
-    <button @click="fetchPlats">Recharger</button>
-    <ul>
-      <li v-for="plat in plats" :key="plat.id">
-        {{ plat.nom }} - {{ plat.prix }} €
-        <button @click="deletePlat(plat.id)">❌</button>
-      </li>
-    </ul>
+    <h2>{{ $t("clients.list") }}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>{{ $t("clients.name") }}</th>
+          <th>{{ $t("clients.email") }}</th>
+          <th>{{ $t("actions.title") }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="client in store.clients" :key="client.id">
+          <td>{{ client.nom }}</td>
+          <td>{{ client.email }}</td>
+          <td>
+            <button @click="store.deleteClient(client.id)">
+              {{ $t("actions.delete") }}
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <script setup>
 import { onMounted } from "vue";
-import { usePlatStore } from "../stores/platStore";
+import { useClientStore } from "../stores/clientStore";
 
-const store = usePlatStore();
-const { plats, fetchPlats, deletePlat } = store;
+const store = useClientStore();
 
 onMounted(() => {
-  fetchPlats();
+  store.fetchClients();
 });
 </script>

@@ -1,13 +1,14 @@
 <template>
   <nav>
     <ul>
-      <li><router-link to="/clients">Clients</router-link></li>
-      <li><router-link to="/plats">Plats</router-link></li>
-      <li><router-link to="/commandes">Commandes</router-link></li>
-      <li><router-link to="/evenements">Événements</router-link></li>
+      <li><router-link to="/clients">{{ $t("menu.clients") }}</router-link></li>
+      <li><router-link to="/commandes">{{ $t("menu.commandes") }}</router-link></li>
+      <li><router-link to="/evenements">{{ $t("menu.evenements") }}</router-link></li>
+      <li><router-link to="/plats">{{ $t("menu.plats") }}</router-link></li>
     </ul>
   </nav>
 </template>
+
 
 <script setup>
 </script>
