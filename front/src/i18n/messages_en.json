@@ -1,9 +1,14 @@
 {
   "menu": {
+    "home": "Home",
     "clients": "Clients",
     "commandes": "Orders",
     "evenements": "Events",
     "plats": "Dishes"
+  },
+  "home": {
+    "title": "Welcome to DriveNCook",
+    "subtitle": "Manage your Clients, Orders, Events, and Dishes from one single interface."
   },
   "clients": {
     "title": "Client Management",
@@ -11,7 +16,7 @@
     "add": "Add a client",
     "name": "Name",
     "email": "Email",
-    "selectClient": "Select a client"
+    "points": "Loyalty points"
   },
   "commandes": {
     "title": "Order Management",
@@ -21,25 +26,28 @@
     "client": "Client",
     "status": "Status",
     "plat": "Dish",
+    "selectClient": "Select a client",
+    "selectPlat": "Select a dish",
     "passerCommande": "Place order"
   },
   "evenements": {
     "title": "Event Management",
     "list": "Event list",
     "add": "Add an event",
-    "name": "Name",
+    "name": "Event name",
     "date": "Date"
   },
   "plats": {
     "title": "Dish Management",
     "list": "Dish list",
     "add": "Add a dish",
-    "name": "Name",
+    "name": "Dish name",
     "price": "Price"
   },
   "actions": {
     "title": "Actions",
+    "edit": "Edit",
     "delete": "Delete",
-    "add": "Add"
+    "save": "Save"
   }
 }

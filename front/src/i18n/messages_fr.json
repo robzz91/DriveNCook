@@ -1,9 +1,14 @@
 {
   "menu": {
+    "home": "Accueil",
     "clients": "Clients",
     "commandes": "Commandes",
     "evenements": "Événements",
     "plats": "Plats"
+  },
+  "home": {
+    "title": "Bienvenue sur DriveNCook",
+    "subtitle": "Gérez vos Clients, Commandes, Événements et Plats depuis une seule interface."
   },
   "clients": {
     "title": "Gestion des Clients",
@@ -11,7 +16,7 @@
     "add": "Ajouter un client",
     "name": "Nom",
     "email": "Email",
-    "selectClient": "Choisir un client"
+    "points": "Points fidélité"
   },
   "commandes": {
     "title": "Gestion des Commandes",
@@ -21,25 +26,28 @@
     "client": "Client",
     "status": "Statut",
     "plat": "Plat",
+    "selectClient": "Sélectionner un client",
+    "selectPlat": "Sélectionner un plat",
     "passerCommande": "Passer la commande"
   },
   "evenements": {
     "title": "Gestion des Événements",
     "list": "Liste des événements",
     "add": "Ajouter un événement",
-    "name": "Nom",
+    "name": "Nom de l'événement",
     "date": "Date"
   },
   "plats": {
     "title": "Gestion des Plats",
     "list": "Liste des plats",
     "add": "Ajouter un plat",
-    "name": "Nom",
+    "name": "Nom du plat",
     "price": "Prix"
   },
   "actions": {
     "title": "Actions",
+    "edit": "Modifier",
     "delete": "Supprimer",
-    "add": "Ajouter"
+    "save": "Enregistrer"
   }
 }

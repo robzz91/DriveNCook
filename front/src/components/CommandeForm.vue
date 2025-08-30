@@ -1,53 +1,31 @@
 <template>
-  <div>
-    <h2>{{ $t('commandes.title') }}</h2>
-    <form @submit.prevent="passerCommande">
-      <div>
-        <label>{{ $t('commandes.client') }}</label>
-        <select v-model="selectedClient">
-          <option disabled value="">{{ $t('clients.selectClient') }}</option>
-          <option v-for="client in clients" :key="client.email" :value="client.email">
-            {{ client.nom }}
-          </option>
-        </select>
+  <div class="form-container">
+    <h2>{{ $t("commandes.add") }}</h2>
+    <form @submit.prevent="ajouter">
+      <div class="form-group">
+        <label>{{ $t("commandes.clientId") }}</label>
+        <input v-model="clientId" type="number" required />
       </div>
-
-      <div>
-        <label>{{ $t('commandes.plat') }}</label>
-        <select v-model="selectedPlat">
-          <option disabled value="">-- Choisir un plat --</option>
-          <option v-for="plat in plats" :key="plat.nom" :value="plat.nom">
-            {{ plat.nom }}
-          </option>
-        </select>
+      <div class="form-group">
+        <label>{{ $t("commandes.total") }}</label>
+        <input v-model="total" type="number" required />
       </div>
-
-      <button type="submit">{{ $t('commandes.passerCommande') }}</button>
+      <button type="submit" class="btn-primary">{{ $t("actions.save") }}</button>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useClientStore } from '@/stores/clientStore'
-import { usePlatStore } from '@/stores/platStore'
-import { useCommandeStore } from '@/stores/commandeStore'
+import { ref } from "vue";
+import { useCommandeStore } from "@/stores/commandeStore";
 
-const clientStore = useClientStore()
-const platStore = usePlatStore()
-const commandeStore = useCommandeStore()
+const store = useCommandeStore();
+const clientId = ref("");
+const total = ref("");
 
-const selectedClient = ref('')
-const selectedPlat = ref('')
-
-const clients = clientStore.clients
-const plats = platStore.plats
-
-function passerCommande() {
-  if (selectedClient.value && selectedPlat.value) {
-    commandeStore.ajouterCommande(selectedClient.value, selectedPlat.value)
-    selectedClient.value = ''
-    selectedPlat.value = ''
-  }
+function ajouter() {
+  store.ajouterCommande({ clientId: clientId.value, total: total.value });
+  clientId.value = "";
+  total.value = "";
 }
 </script>

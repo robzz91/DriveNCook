@@ -1,20 +1,24 @@
 <template>
-  <div>
+  <div class="list-container">
     <h2>{{ $t("clients.list") }}</h2>
-    <table>
+    <table class="styled-table">
       <thead>
         <tr>
+          <th>ID</th>
           <th>{{ $t("clients.name") }}</th>
           <th>{{ $t("clients.email") }}</th>
+          <th>{{ $t("clients.points") }}</th>
           <th>{{ $t("actions.title") }}</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="client in store.clients" :key="client.id">
-          <td>{{ client.nom }}</td>
-          <td>{{ client.email }}</td>
+        <tr v-for="c in store.clients" :key="c.id">
+          <td>{{ c.id }}</td>
+          <td>{{ c.nom }}</td>
+          <td>{{ c.email }}</td>
+          <td>{{ c.points }}</td>
           <td>
-            <button @click="store.deleteClient(client.id)">
+            <button class="btn-danger" @click="store.supprimerClient(c.id)">
               {{ $t("actions.delete") }}
             </button>
           </td>
@@ -25,12 +29,6 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
-import { useClientStore } from "../stores/clientStore";
-
+import { useClientStore } from "@/stores/clientStore";
 const store = useClientStore();
-
-onMounted(() => {
-  store.fetchClients();
-});
 </script>

@@ -1,25 +1,31 @@
 <template>
-  <form @submit.prevent="addPlat">
-    <input v-model="plat.nom" placeholder="Nom du plat" required />
-    <input v-model.number="plat.prix" placeholder="Prix (€)" required type="number" min="0" step="0.01" />
-    <button type="submit">Ajouter le plat</button>
-  </form>
+  <div class="form-container">
+    <h2>{{ $t("plats.add") }}</h2>
+    <form @submit.prevent="ajouter">
+      <div class="form-group">
+        <label>{{ $t("plats.name") }}</label>
+        <input v-model="nom" required />
+      </div>
+      <div class="form-group">
+        <label>{{ $t("plats.price") }}</label>
+        <input type="number" v-model="prix" required />
+      </div>
+      <button type="submit" class="btn-primary">{{ $t("actions.save") }}</button>
+    </form>
+  </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
-import { usePlatStore } from '@/stores/platStore'
+import { ref } from "vue";
+import { usePlatStore } from "@/stores/platStore";
 
-const store = usePlatStore()
+const store = usePlatStore();
+const nom = ref("");
+const prix = ref("");
 
-const plat = reactive({
-  nom: '',
-  prix: ''
-})
-
-function addPlat() {
-  store.ajouterPlat(plat.nom, plat.prix)
-  plat.nom = ''
-  plat.prix = ''
+function ajouter() {
+  store.ajouterPlat({ nom: nom.value, prix: prix.value });
+  nom.value = "";
+  prix.value = "";
 }
 </script>

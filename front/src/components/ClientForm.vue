@@ -1,45 +1,35 @@
 <template>
-  <form @submit.prevent="addClient" class="form">
-    <input v-model="client.nom" placeholder="Nom" required />
-    <input v-model="client.email" placeholder="Email" required />
-    <button type="submit">Ajouter client</button>
-  </form>
+  <div class="form-container">
+    <h2>{{ $t("clients.add") }}</h2>
+    <form @submit.prevent="ajouter">
+      <div class="form-group">
+        <label for="nom">{{ $t("clients.name") }}</label>
+        <input id="nom" v-model="nom" required />
+      </div>
+
+      <div class="form-group">
+        <label for="email">{{ $t("clients.email") }}</label>
+        <input id="email" v-model="email" type="email" required />
+      </div>
+
+      <button type="submit" class="btn-primary">
+        {{ $t("actions.save") }}
+      </button>
+    </form>
+  </div>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
-import { useClientStore } from '@/stores/clientStore'
+import { ref } from "vue";
+import { useClientStore } from "@/stores/clientStore";
 
-const store = useClientStore()
+const store = useClientStore();
+const nom = ref("");
+const email = ref("");
 
-const client = reactive({
-  nom: '',
-  email: ''
-})
-
-function addClient() {
-  store.ajouterClient(client.nom, client.email)
-  client.nom = ''
-  client.email = ''
+function ajouter() {
+  store.ajouterClient({ nom: nom.value, email: email.value });
+  nom.value = "";
+  email.value = "";
 }
 </script>
-
-<style scoped>
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: 300px;
-  margin: 1rem auto;
-}
-input, button {
-  padding: 0.5rem;
-  font-size: 1rem;
-}
-button {
-  background-color: #42b983;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-</style>
