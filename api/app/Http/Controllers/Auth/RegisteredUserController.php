@@ -24,12 +24,16 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', 'in:admin,franchisee'],
+            'franchisee_id' => ['nullable','integer','exists:franchisees,id', 'required_if:role,franchisee'],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->string('password')),
+            'role' => $request->string('role'),
+            'franchisee_id' => $request->input('franchisee_id'),
         ]);
 
         event(new Registered($user));

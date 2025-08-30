@@ -10,6 +10,10 @@ use App\Http\Controllers\WebhookController;
 
 Route::get('/health', fn () => response()->json(['ok' => true]));
 
+// Test routes protected by roles (example only)
+Route::middleware(['auth:sanctum','role:admin'])->get('/admin/ping', fn () => response()->json(['pong' => 'admin']));
+Route::middleware(['auth:sanctum','role:franchisee'])->get('/franchisee/ping', fn () => response()->json(['pong' => 'franchisee']));
+
 // CRUD REST
 Route::apiResource('clients', ClientController::class);
 Route::apiResource('plats', PlatController::class);
