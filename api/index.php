@@ -175,6 +175,9 @@ try {
         case $path === 'logout.php':
             require __DIR__.'/logout.php';
             return;
+        case $path === 'register.php' && $method === 'POST':
+            require __DIR__.'/register.php';
+            return;
 
         // Sales report PDF (file-like endpoint)
         case $path === 'sales/report.php':

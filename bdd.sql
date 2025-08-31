@@ -1,5 +1,5 @@
 -- ========================================
--- ARCHITECTURE BASE DE DONNEES DRIVNCOOK
+-- ARCHITECTURE BASE DE DONNEES DRIVNCOOK (MAJ)
 -- ========================================
 
 DROP DATABASE IF EXISTS drivncook_m2;
@@ -15,6 +15,7 @@ SET FOREIGN_KEY_CHECKS=0;
 CREATE TABLE clients (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   nom VARCHAR(255) NOT NULL,
+  prenom VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   created_at TIMESTAMP NULL DEFAULT NULL,
   updated_at TIMESTAMP NULL DEFAULT NULL
@@ -79,7 +80,6 @@ CREATE TABLE evenements (
 -- MISSION 1 : Services Franchisés
 -- ======================
 
--- Franchisés
 CREATE TABLE franchisees (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
@@ -91,7 +91,6 @@ CREATE TABLE franchisees (
   updated_at TIMESTAMP NULL
 );
 
--- Entrepôts
 CREATE TABLE warehouses (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
@@ -101,7 +100,6 @@ CREATE TABLE warehouses (
   updated_at TIMESTAMP NULL
 );
 
--- Camions
 CREATE TABLE trucks (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   plate VARCHAR(30) NOT NULL UNIQUE,
@@ -114,7 +112,6 @@ CREATE TABLE trucks (
   FOREIGN KEY (franchisee_id) REFERENCES franchisees(id) ON DELETE SET NULL
 );
 
--- Maintenances camions
 CREATE TABLE truck_maintenances (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   truck_id BIGINT UNSIGNED NOT NULL,
@@ -128,7 +125,6 @@ CREATE TABLE truck_maintenances (
   FOREIGN KEY (truck_id) REFERENCES trucks(id) ON DELETE CASCADE
 );
 
--- Approvisionnements
 CREATE TABLE supplies (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   franchisee_id BIGINT UNSIGNED NOT NULL,
@@ -141,7 +137,6 @@ CREATE TABLE supplies (
   FOREIGN KEY (warehouse_id) REFERENCES warehouses(id) ON DELETE RESTRICT
 );
 
--- Lignes d’approvisionnement
 CREATE TABLE supply_items (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   supply_id BIGINT UNSIGNED NOT NULL,
@@ -155,7 +150,6 @@ CREATE TABLE supply_items (
   FOREIGN KEY (supply_id) REFERENCES supplies(id) ON DELETE CASCADE
 );
 
--- Ventes
 CREATE TABLE sales (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   franchisee_id BIGINT UNSIGNED NOT NULL,
@@ -168,27 +162,23 @@ CREATE TABLE sales (
 );
 
 -- ======================
--- TABLES TECHNIQUES LARAVEL
+-- TABLES TECHNIQUES (auth)
 -- ======================
 
 CREATE TABLE users (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NULL, -- le nom/prénom restent côté clients
   email VARCHAR(255) NOT NULL UNIQUE,
   email_verified_at TIMESTAMP NULL DEFAULT NULL,
   password VARCHAR(255) NOT NULL,
-  role ENUM('admin','franchisee') NOT NULL DEFAULT 'franchisee',
+  role ENUM('admin','franchisee','client') NOT NULL DEFAULT 'client',
   franchisee_id BIGINT UNSIGNED NULL,
+  client_id INT UNSIGNED NULL,
   remember_token VARCHAR(100) DEFAULT NULL,
   created_at TIMESTAMP NULL DEFAULT NULL,
   updated_at TIMESTAMP NULL DEFAULT NULL,
-  FOREIGN KEY (franchisee_id) REFERENCES franchisees(id) ON DELETE SET NULL
-);
-
-CREATE TABLE migrations (
-  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  migration VARCHAR(255) NOT NULL,
-  batch INT NOT NULL
+  FOREIGN KEY (franchisee_id) REFERENCES franchisees(id) ON DELETE SET NULL,
+  FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL
 );
 
 CREATE TABLE personal_access_tokens (
@@ -213,7 +203,7 @@ CREATE TABLE password_reset_tokens (
 SET FOREIGN_KEY_CHECKS=1;
 
 -- ======================
--- Vues
+-- Vues (reporting)
 -- ======================
 
 CREATE OR REPLACE VIEW v_sales_summary AS
@@ -228,13 +218,13 @@ GROUP BY franchisee_id, DATE(sold_at);
 
 CREATE OR REPLACE VIEW v_supplies_summary AS
 SELECT
-    s.id                AS supply_id,
+    s.id               AS supply_id,
     s.franchisee_id,
     s.warehouse_id,
-    DATE(s.created_at)  AS supply_date,
+    DATE(s.created_at) AS supply_date,
     s.total_amount,
     SUM(CASE WHEN si.source = 'warehouse' THEN (si.quantity * si.unit_price) ELSE 0 END) AS warehouse_amount,
-    SUM(CASE WHEN si.source = 'free' THEN (si.quantity * si.unit_price) ELSE 0 END)      AS free_amount,
+    SUM(CASE WHEN si.source = 'free'      THEN (si.quantity * si.unit_price) ELSE 0 END) AS free_amount,
     ROUND(
         (SUM(CASE WHEN si.source = 'warehouse' THEN (si.quantity * si.unit_price) ELSE 0 END) / NULLIF((SUM(si.quantity * si.unit_price)),0)) * 100,
         2
@@ -246,4 +236,44 @@ SELECT
 FROM supplies s
 LEFT JOIN supply_items si ON si.supply_id = s.id
 GROUP BY s.id, s.franchisee_id, s.warehouse_id, s.created_at, s.total_amount;
+
+-- ======================
+-- Procédures stockées (inscription client & compte franchisé)
+-- ======================
+
+DELIMITER $$
+
+-- Inscription côté client : crée le client + le user (role=client)
+CREATE PROCEDURE sp_register_client (
+  IN p_nom VARCHAR(255),
+  IN p_prenom VARCHAR(255),
+  IN p_email VARCHAR(255),
+  IN p_password_hash VARCHAR(255)
+)
+BEGIN
+  DECLARE v_client_id INT UNSIGNED;
+
+  INSERT INTO clients (nom, prenom, email, created_at, updated_at)
+  VALUES (p_nom, p_prenom, p_email, NOW(), NOW());
+
+  SET v_client_id = LAST_INSERT_ID();
+
+  INSERT INTO users (name, email, password, role, client_id, created_at, updated_at)
+  VALUES (NULL, p_email, p_password_hash, 'client', v_client_id, NOW(), NOW());
+END$$
+
+-- Création de compte franchisé par l’admin :
+-- 1) l’admin crée d’abord le franchisé dans `franchisees`
+-- 2) puis appelle cette procédure pour créer le user lié (role=franchisee)
+CREATE PROCEDURE sp_create_franchisee_user (
+  IN p_franchisee_id BIGINT UNSIGNED,
+  IN p_email VARCHAR(255),
+  IN p_password_hash VARCHAR(255)
+)
+BEGIN
+  INSERT INTO users (name, email, password, role, franchisee_id, created_at, updated_at)
+  VALUES (NULL, p_email, p_password_hash, 'franchisee', p_franchisee_id, NOW(), NOW());
+END$$
+
+DELIMITER ;
 
