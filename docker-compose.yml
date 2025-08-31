@@ -54,6 +54,8 @@ services:
       - "8081:80"
     depends_on:
       - api
+    networks:
+      - drivncook-net
 
 networks:
   drivncook-net:
