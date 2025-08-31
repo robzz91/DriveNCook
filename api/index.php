@@ -4,7 +4,7 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
 require_once __DIR__.'/controllers/FranchiseesController.php';
@@ -14,6 +14,9 @@ require_once __DIR__.'/controllers/ClientsController.php';
 require_once __DIR__.'/controllers/PlatsController.php';
 require_once __DIR__.'/controllers/EvenementsController.php';
 require_once __DIR__.'/controllers/CommandesController.php';
+require_once __DIR__.'/controllers/SuppliesController.php';
+require_once __DIR__.'/controllers/SalesController.php';
+require_once __DIR__.'/controllers/UsersController.php';
 
 function respond($data, int $code=200): void {
     http_response_code($code);
@@ -56,8 +59,17 @@ try {
         case $path === 'warehouses' && $method === 'GET':
             WarehousesController::index();
             break;
+        case preg_match('#^warehouses/(\d+)$#', $path, $m) && $method === 'GET':
+            WarehousesController::show((int)$m[1]);
+            break;
         case $path === 'warehouses' && $method === 'POST':
             WarehousesController::store(read_input());
+            break;
+        case preg_match('#^warehouses/(\d+)$#', $path, $m) && $method === 'PUT':
+            WarehousesController::update((int)$m[1]);
+            break;
+        case preg_match('#^warehouses/(\d+)$#', $path, $m) && $method === 'DELETE':
+            WarehousesController::destroy((int)$m[1]);
             break;
 
         // Trucks
@@ -66,6 +78,21 @@ try {
             break;
         case $path === 'trucks' && $method === 'POST':
             TrucksController::store(read_input());
+            break;
+        case preg_match('#^trucks/(\d+)$#', $path, $m) && $method === 'GET':
+            TrucksController::show((int)$m[1]);
+            break;
+        case preg_match('#^trucks/(\d+)$#', $path, $m) && $method === 'PUT':
+            TrucksController::update((int)$m[1]);
+            break;
+        case preg_match('#^trucks/(\d+)$#', $path, $m) && $method === 'DELETE':
+            TrucksController::destroy((int)$m[1]);
+            break;
+        case preg_match('#^trucks/(\d+)/maintenance$#', $path, $m) && $method === 'GET':
+            TrucksController::listMaintenance((int)$m[1]);
+            break;
+        case preg_match('#^trucks/(\d+)/maintenance$#', $path, $m) && $method === 'POST':
+            TrucksController::addMaintenance((int)$m[1]);
             break;
 
         // Clients CRUD basique
@@ -113,6 +140,50 @@ try {
             break;
         case preg_match('#^commandes/(\d+)$#', $path, $m) && $method === 'DELETE':
             CommandesController::destroy((int)$m[1]);
+            break;
+
+        // Supplies
+        case $path === 'supplies' && $method === 'GET':
+            SuppliesController::index();
+            break;
+        case preg_match('#^supplies/(\d+)$#', $path, $m) && $method === 'GET':
+            SuppliesController::show((int)$m[1]);
+            break;
+        case $path === 'supplies' && $method === 'POST':
+            SuppliesController::store(read_input());
+            break;
+        case preg_match('#^supplies/(\d+)$#', $path, $m) && $method === 'PUT':
+            SuppliesController::update((int)$m[1]);
+            break;
+        case preg_match('#^supplies/(\d+)$#', $path, $m) && $method === 'DELETE':
+            SuppliesController::destroy((int)$m[1]);
+            break;
+        case preg_match('#^supplies/(\d+)/items$#', $path, $m) && $method === 'GET':
+            SuppliesController::listItems((int)$m[1]);
+            break;
+        case preg_match('#^supplies/(\d+)/items$#', $path, $m) && $method === 'POST':
+            SuppliesController::addItem((int)$m[1]);
+            break;
+        case preg_match('#^supply_items/(\d+)$#', $path, $m) && $method === 'DELETE':
+            SuppliesController::deleteItem((int)$m[1]);
+            break;
+
+        // Sales report PDF (file-like endpoint)
+        case $path === 'sales/report.php':
+            require __DIR__.'/sales/report.php';
+            return;
+
+        // Sales
+        case $path === 'sales' && $method === 'GET':
+            SalesController::index();
+            break;
+        case $path === 'sales' && $method === 'POST':
+            SalesController::store(read_input());
+            break;
+
+        // Users (admin-only)
+        case $path === 'users' && $method === 'POST':
+            UsersController::store(read_input());
             break;
 
         default:

@@ -236,11 +236,11 @@ SELECT
     SUM(CASE WHEN si.source = 'warehouse' THEN (si.quantity * si.unit_price) ELSE 0 END) AS warehouse_amount,
     SUM(CASE WHEN si.source = 'free' THEN (si.quantity * si.unit_price) ELSE 0 END)      AS free_amount,
     ROUND(
-        (SUM(CASE WHEN si.source = 'warehouse' THEN (si.quantity * si.unit_price) ELSE 0 END) / NULLIF(s.total_amount,0)) * 100,
+        (SUM(CASE WHEN si.source = 'warehouse' THEN (si.quantity * si.unit_price) ELSE 0 END) / NULLIF((SUM(si.quantity * si.unit_price)),0)) * 100,
         2
     ) AS warehouse_pct,
     ROUND(
-        (SUM(CASE WHEN si.source = 'free' THEN (si.quantity * si.unit_price) ELSE 0 END) / NULLIF(s.total_amount,0)) * 100,
+        (SUM(CASE WHEN si.source = 'free' THEN (si.quantity * si.unit_price) ELSE 0 END) / NULLIF((SUM(si.quantity * si.unit_price)),0)) * 100,
         2
     ) AS free_pct
 FROM supplies s
