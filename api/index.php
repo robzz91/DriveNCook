@@ -168,6 +168,14 @@ try {
             SuppliesController::deleteItem((int)$m[1]);
             break;
 
+        // Auth file-like endpoints
+        case $path === 'login.php':
+            require __DIR__.'/login.php';
+            return;
+        case $path === 'logout.php':
+            require __DIR__.'/logout.php';
+            return;
+
         // Sales report PDF (file-like endpoint)
         case $path === 'sales/report.php':
             require __DIR__.'/sales/report.php';

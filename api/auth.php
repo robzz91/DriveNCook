@@ -16,6 +16,15 @@ function auth_get_authorization_header(): ?string {
     return null;
 }
 
+function auth_get_bearer_token(): ?string {
+    $hdr = auth_get_authorization_header();
+    if (!$hdr) return null;
+    if (stripos($hdr, 'Bearer ') === 0) {
+        return trim(substr($hdr, 7));
+    }
+    return null;
+}
+
 function auth_parse_basic(): ?array {
     // Utilise PHP_AUTH_USER/PHP_AUTH_PW si fournis par le serveur
     if (!empty($_SERVER['PHP_AUTH_USER'])) {
@@ -35,31 +44,31 @@ function auth_parse_basic(): ?array {
  * Retourne l'utilisateur authentifié (array id, email, role, franchisee_id, name, password) ou null.
  */
 function auth_user(): ?array {
-    [$email, $password] = auth_parse_basic() ?? [null, null];
-    if (!$email) return null;
-
-    $stmt = db()->prepare('SELECT id, name, email, password, role, franchisee_id FROM users WHERE email = ? LIMIT 1');
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-    if (!$user) return null;
-
-    $hash = (string)($user['password'] ?? '');
-    // Tolérer mot de passe en clair si password_verify échoue
-    $ok = false;
-    if ($hash !== '') {
-        if (function_exists('password_verify')) {
-            $ok = password_verify($password, $hash);
+    // 1) Essayer via Bearer token
+    $bearer = auth_get_bearer_token();
+    if ($bearer) {
+        $pdo = db();
+        $stmt = $pdo->prepare('SELECT tokenable_id FROM personal_access_tokens WHERE token = ? LIMIT 1');
+        $stmt->execute([$bearer]);
+        $row = $stmt->fetch();
+        if ($row && isset($row['tokenable_id'])) {
+            $userId = (int)$row['tokenable_id'];
+            $u = $pdo->prepare('SELECT id, name, email, password, role, franchisee_id FROM users WHERE id = ? LIMIT 1');
+            $u->execute([$userId]);
+            $user = $u->fetch();
+            if ($user) {
+                // Update last_used_at
+                $pdo->prepare('UPDATE personal_access_tokens SET last_used_at = NOW() WHERE token = ?')->execute([$bearer]);
+                $user['role'] = $user['role'] ?? 'franchisee';
+                $user['franchisee_id'] = $user['franchisee_id'] ?? null;
+                return $user;
+            }
         }
-        if (!$ok && hash_equals($hash, $password)) {
-            $ok = true;
-        }
+        return null;
     }
-    if (!$ok) return null;
 
-    // Normaliser les clés/valeurs
-    $user['role'] = $user['role'] ?? 'franchisee';
-    $user['franchisee_id'] = $user['franchisee_id'] ?? null;
-    return $user;
+    // Pas de jeton Bearer présent
+    return null;
 }
 
 /** Force auth, sinon 401. Retourne l'utilisateur. */
@@ -101,6 +110,13 @@ function auth_scope_clause(array $user, string $column = 'franchisee_id'): array
     $fid = $user['franchisee_id'] ?? null;
     if ($fid === null || $fid === '') return [' AND 1=0', []]; // pas de données
     return [' AND '.$column.' = ?', [(int)$fid]];
+}
+
+/** Supprime un token s'il existe */
+function auth_delete_token(string $token): void {
+    $pdo = db();
+    $stmt = $pdo->prepare('DELETE FROM personal_access_tokens WHERE token = ?');
+    $stmt->execute([$token]);
 }
 
 
