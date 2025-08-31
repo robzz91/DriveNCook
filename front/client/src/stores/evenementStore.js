@@ -1,42 +1,50 @@
+// client/src/stores/evenementStore.js
 import { defineStore } from "pinia";
 import api from "../api";
 
 export const useEvenementStore = defineStore("evenement", {
   state: () => ({
-    evenements: [],
+    items: [],
     loading: false,
     error: null,
   }),
 
   actions: {
-    async fetchEvenements() {
+    async fetchAll() {
       this.loading = true;
+      this.error = null;
       try {
-        const response = await api.get("/evenements");
-        this.evenements = response.data;
-      } catch (err) {
-        this.error = err.response?.data?.message || "Erreur chargement événements";
+        const { data } = await api.get("/evenements");
+        this.items = Array.isArray(data) ? data : (data?.data || []);
+      } catch (e) {
+        this.error = e.response?.data?.message || e.message;
+        throw e;
       } finally {
         this.loading = false;
       }
     },
 
-    async addEvenement(evenement) {
-      try {
-        const response = await api.post("/evenements", evenement);
-        this.evenements.push(response.data);
-      } catch (err) {
-        this.error = err.response?.data?.message || "Erreur ajout événement";
-      }
+    async getOne(id) {
+      const { data } = await api.get(`/evenements/${id}`);
+      return data;
     },
 
-    async deleteEvenement(id) {
-      try {
-        await api.delete(`/evenements/${id}`);
-        this.evenements = this.evenements.filter(e => e.id !== id);
-      } catch (err) {
-        this.error = err.response?.data?.message || "Erreur suppression événement";
-      }
+    async create(payload) {
+      const { data } = await api.post("/evenements", payload);
+      this.items.push(data);
+      return data;
+    },
+
+    async update(id, payload) {
+      const { data } = await api.put(`/evenements/${id}`, payload);
+      const idx = this.items.findIndex((x) => x.id === data.id);
+      if (idx > -1) this.items[idx] = data;
+      return data;
+    },
+
+    async remove(id) {
+      await api.delete(`/evenements/${id}`);
+      this.items = this.items.filter((x) => x.id !== id);
     },
   },
 });

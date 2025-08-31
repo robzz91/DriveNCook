@@ -1,31 +1,75 @@
 <template>
-  <div class="form-container">
-    <h2>{{ $t("evenements.add") }}</h2>
-    <form @submit.prevent="ajouter">
-      <div class="form-group">
-        <label>{{ $t("evenements.title") }}</label>
-        <input v-model="titre" required />
+  <div class="card">
+    <h3>{{ edited?.id ? "Modifier l'événement" : "Ajouter un événement" }}</h3>
+
+    <form @submit.prevent="submit">
+      <div class="grid">
+        <label>
+          <span>Nom</span>
+          <input v-model="form.name" placeholder="Nom de l'événement" required />
+        </label>
+
+        <label>
+          <span>Date</span>
+          <input v-model="form.date" type="date" />
+        </label>
       </div>
-      <div class="form-group">
-        <label>{{ $t("evenements.date") }}</label>
-        <input type="date" v-model="date" required />
+
+      <div class="actions">
+        <button class="btn" type="submit">{{ edited?.id ? "Enregistrer" : "Ajouter" }}</button>
+        <button class="btn ghost" type="button" @click="reset">Annuler</button>
       </div>
-      <button type="submit" class="btn-primary">{{ $t("actions.save") }}</button>
     </form>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { reactive, watch } from "vue";
 import { useEvenementStore } from "@/stores/evenementStore";
 
+const props = defineProps({ edited: Object });
+const emit = defineEmits(["saved", "cancel"]);
 const store = useEvenementStore();
-const titre = ref("");
-const date = ref("");
 
-function ajouter() {
-  store.ajouterEvenement({ titre: titre.value, date: date.value });
-  titre.value = "";
-  date.value = "";
+const form = reactive({ name: "", date: "" });
+
+watch(
+  () => props.edited,
+  (v) => {
+    if (v?.id) {
+      form.name = v.name || v.nom || "";
+      form.date = (v.date || "").toString().slice(0, 10);
+    } else {
+      reset();
+    }
+  },
+  { immediate: true }
+);
+
+async function submit() {
+  const payload = { ...form };
+  if (props.edited?.id) {
+    await store.update(props.edited.id, payload);
+  } else {
+    await store.create(payload);
+  }
+  emit("saved");
+  reset();
+}
+
+function reset() {
+  form.name = "";
+  form.date = "";
+  emit("cancel");
 }
 </script>
+
+<style scoped>
+.card { background:#1d1f23; border-radius:12px; padding:16px; }
+.grid { display:grid; grid-template-columns: 2fr 1fr; gap:12px; }
+label span { display:block; color:#8b949e; margin-bottom:6px; }
+input { width:100%; padding:10px; border-radius:6px; border:1px solid #2a2e35; background:#151a21; color:#c9d1d9; }
+.actions { display:flex; gap:10px; margin-top:12px; }
+.btn { background:#f7b500; border:none; padding:8px 12px; border-radius:6px; color:#151a21; cursor:pointer; }
+.btn.ghost { background:transparent; border:1px solid #2a2e35; color:#c9d1d9; }
+</style>

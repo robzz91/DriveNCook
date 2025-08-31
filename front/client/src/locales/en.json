@@ -1,50 +1,50 @@
 {
-  "app": {
-    "title": "Client Management"
-  },
-  "menu": {
-    "clients": "Client management",
-    "commandes": "Order management",
-    "plats": "Dish management",
-    "evenements": "Event management"
-  },
-  "form": {
-    "name": "Name",
-    "email": "Email",
-    "addClient": "Add client",
-    "selectClient": "Select a client",
-    "addPoints": "Add points",
-    "nomPlat": "Dish name",
-    "prix": "Price (€)",
-    "ajouterPlat": "Add dish",
-    "selectPlat": "Select a dish",
-    "placeOrder": "Place order",
-    "title": "Title",
-    "description": "Description",
-    "date": "Date",
-    "location": "Location",
-    "addEvenement": "Add event",
-    "payer": "Pay",
-    "addPlat": "Add dish",
-    "titre": "Title",
-    "paid": "Paid"
-  },
-  "list": {
-    "clients": "Client list",
-    "plats": "Dish list",
-    "commandes": "Order list",
-    "evenements": "Event list"
+  "home": {
+    "welcome": "Welcome to DriveNCook",
+    "clientsText": "Easily manage your clients",
+    "platsText": "Discover our dishes",
+    "commandesText": "Track your orders in real time",
+    "evenementsText": "Organize your events"
   },
   "clients": {
-    "title": "Client Management"
+    "title": "Clients",
+    "add": "Add a client",
+    "edit": "Edit a client",
+    "delete": "Delete",
+    "name": "Name",
+    "email": "Email",
+    "selectClient": "Select a client"
   },
   "plats": {
-    "title": "Dish Management"
+    "title": "Dishes",
+    "add": "Add a dish",
+    "edit": "Edit a dish",
+    "delete": "Delete",
+    "name": "Dish name",
+    "price": "Price"
   },
   "commandes": {
-    "title": "Place an Order"
+    "title": "Orders",
+    "add": "Add an order",
+    "edit": "Edit an order",
+    "delete": "Delete",
+    "status": "Status",
+    "paye": "Paid"
   },
   "evenements": {
-    "title": "Event Management"
+    "title": "Events",
+    "add": "Add an event",
+    "edit": "Edit an event",
+    "delete": "Delete",
+    "date": "Date",
+    "description": "Description"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete"
   }
 }

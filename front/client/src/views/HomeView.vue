@@ -1,56 +1,50 @@
+<!-- client/src/views/HomeView.vue -->
 <template>
-  <div class="home">
-    <h1 class="page-title">{{ $t("home.title") }}</h1>
-    <p class="page-subtitle">
-      {{ $t("home.subtitle") }}
-    </p>
+  <div class="page home">
+    <h1>Bienvenue sur DriveNCook</h1>
+    <p>Votre interface de gestion des clients, plats, commandes et événements.</p>
 
-    <div class="cards-container">
-      <router-link to="/clients" class="card">👤 {{ $t("menu.clients") }}</router-link>
-      <router-link to="/commandes" class="card">🛒 {{ $t("menu.commandes") }}</router-link>
-      <router-link to="/evenements" class="card">🎉 {{ $t("menu.evenements") }}</router-link>
-      <router-link to="/plats" class="card">🍽 {{ $t("menu.plats") }}</router-link>
+    <div class="cards">
+      <RouterLink to="/clients" class="card">👤 Gérer les Clients</RouterLink>
+      <RouterLink to="/plats" class="card">🍽️ Gérer les Plats</RouterLink>
+      <RouterLink to="/commandes" class="card">🛒 Gérer les Commandes</RouterLink>
+      <RouterLink to="/evenements" class="card">📅 Gérer les Événements</RouterLink>
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  name: "HomeView"
-};
+<script setup>
+// aucun script pour l'instant
 </script>
 
 <style scoped>
-.home {
+.page.home {
   text-align: center;
-  padding: 2rem;
-  color: white;
+  padding: 40px;
 }
-.page-title {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-.page-subtitle {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
-}
-.cards-container {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+.cards {
+  margin-top: 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
 }
 .card {
-  background: #222;
-  color: #ffcc00;
-  padding: 1.5rem;
-  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 120px;
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #ddd;
   text-decoration: none;
-  font-size: 1.2rem;
-  transition: transform 0.2s ease, background 0.2s ease;
+  color: #111827;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 .card:hover {
-  background: #333;
-  transform: translateY(-5px);
+  background: #111827;
+  color: #fff;
+  transform: scale(1.05);
 }
 </style>

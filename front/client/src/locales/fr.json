@@ -1,50 +1,50 @@
 {
-  "app": {
-    "title": "Gestion des clients"
-  },
-  "menu": {
-    "clients": "Gestion des clients",
-    "commandes": "Gestion des commandes",
-    "plats": "Gestion des plats",
-    "evenements": "Gestion des événements"
-  },
-  "form": {
-    "name": "Nom",
-    "email": "Email",
-    "addClient": "Ajouter client",
-    "selectClient": "Sélectionner un client",
-    "addPoints": "Ajouter les points",
-    "nomPlat": "Nom du plat",
-    "prix": "Prix (€)",
-    "ajouterPlat": "Ajouter le plat",
-    "selectPlat": "Sélectionner un plat",
-    "placeOrder": "Passer commande",
-    "title": "Titre",
-    "description": "Description",
-    "date": "Date",
-    "location": "Lieu",
-    "addEvenement": "Ajouter l'événement",
-    "payer": "Payer",
-    "addPlat": "Ajouter le plat",
-    "titre": "Titre",
-    "paid": "Payée"
-  },
-  "list": {
-    "clients": "Liste des clients",
-    "plats": "Liste des plats",
-    "commandes": "Liste des commandes",
-    "evenements": "Liste des événements"
+  "home": {
+    "welcome": "Bienvenue sur DriveNCook",
+    "clientsText": "Gérez vos clients facilement",
+    "platsText": "Découvrez nos plats",
+    "commandesText": "Suivez vos commandes en temps réel",
+    "evenementsText": "Organisez vos événements"
   },
   "clients": {
-    "title": "Gestion des Clients"
+    "title": "Clients",
+    "add": "Ajouter un client",
+    "edit": "Modifier un client",
+    "delete": "Supprimer",
+    "name": "Nom",
+    "email": "Email",
+    "selectClient": "Sélectionnez un client"
   },
   "plats": {
-    "title": "Gestion des Plats"
+    "title": "Plats",
+    "add": "Ajouter un plat",
+    "edit": "Modifier un plat",
+    "delete": "Supprimer",
+    "name": "Nom du plat",
+    "price": "Prix"
   },
   "commandes": {
-    "title": "Passer une Commande"
+    "title": "Commandes",
+    "add": "Ajouter une commande",
+    "edit": "Modifier une commande",
+    "delete": "Supprimer",
+    "status": "Statut",
+    "paye": "Payé"
   },
   "evenements": {
-    "title": "Gestion des Événements"
+    "title": "Événements",
+    "add": "Ajouter un événement",
+    "edit": "Modifier un événement",
+    "delete": "Supprimer",
+    "date": "Date",
+    "description": "Description"
+  },
+  "actions": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "add": "Ajouter",
+    "edit": "Modifier",
+    "delete": "Supprimer"
   }
 }

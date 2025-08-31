@@ -1,42 +1,50 @@
+// client/src/stores/platStore.js
 import { defineStore } from "pinia";
 import api from "../api";
 
 export const usePlatStore = defineStore("plat", {
   state: () => ({
-    plats: [],
+    items: [],
     loading: false,
     error: null,
   }),
 
   actions: {
-    async fetchPlats() {
+    async fetchAll() {
       this.loading = true;
+      this.error = null;
       try {
-        const response = await api.get("/plats");
-        this.plats = response.data;
-      } catch (err) {
-        this.error = err.response?.data?.message || "Erreur lors du chargement";
+        const { data } = await api.get("/plats");
+        this.items = Array.isArray(data) ? data : (data?.data || []);
+      } catch (e) {
+        this.error = e.response?.data?.message || e.message;
+        throw e;
       } finally {
         this.loading = false;
       }
     },
 
-    async addPlat(plat) {
-      try {
-        const response = await api.post("/plats", plat);
-        this.plats.push(response.data);
-      } catch (err) {
-        this.error = err.response?.data?.message || "Erreur ajout plat";
-      }
+    async getOne(id) {
+      const { data } = await api.get(`/plats/${id}`);
+      return data;
     },
 
-    async deletePlat(id) {
-      try {
-        await api.delete(`/plats/${id}`);
-        this.plats = this.plats.filter(p => p.id !== id);
-      } catch (err) {
-        this.error = err.response?.data?.message || "Erreur suppression plat";
-      }
+    async create(payload) {
+      const { data } = await api.post("/plats", payload);
+      this.items.push(data);
+      return data;
+    },
+
+    async update(id, payload) {
+      const { data } = await api.put(`/plats/${id}`, payload);
+      const idx = this.items.findIndex((x) => x.id === data.id);
+      if (idx > -1) this.items[idx] = data;
+      return data;
+    },
+
+    async remove(id) {
+      await api.delete(`/plats/${id}`);
+      this.items = this.items.filter((x) => x.id !== id);
     },
   },
 });

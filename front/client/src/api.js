@@ -1,24 +1,36 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+// client/src/api.js
+import axios from "axios";
 
-async function request(method, path, body) {
-  const res = await fetch(`${API_URL}${path}`, {
-    method,
-    headers: { 'Content-Type': 'application/json' },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json().catch(() => null);
-  if (!res.ok) {
-    const status = res.status;
-    const message = data && data.message ? data.message : `HTTP ${status}`;
-    throw new Error(message);
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api",
+  timeout: 15000,
+});
+
+// Injecte automatiquement le Bearer token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return { data };
-}
+  return config;
+});
 
-const api = {
-  get: (path) => request('GET', path),
-  post: (path, body) => request('POST', path, body),
-  delete: (path) => request('DELETE', path),
-};
+// Logging + gestion de 401
+api.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    const status = err.response?.status;
+    const payload = err.response?.data;
+    const msg = payload?.message || err.message || "Erreur";
+    console.error("[API ERROR]", status === 401 ? "Non authentifié" : msg, payload || err);
+
+    // Option (décommenter si tu veux auto-redirect vers login) :
+    // if (status === 401) {
+    //   localStorage.removeItem("token");
+    //   window.location.href = "/login";
+    // }
+    return Promise.reject(err);
+  }
+);
 
 export default api;

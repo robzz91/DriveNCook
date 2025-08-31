@@ -1,61 +1,50 @@
+// client/src/stores/clientStore.js
 import { defineStore } from "pinia";
-import api from "@/api";
+import api from "../api";
 
 export const useClientStore = defineStore("client", {
   state: () => ({
-    clients: [],
+    items: [],
     loading: false,
     error: null,
   }),
 
   actions: {
-    async fetchClients() {
+    async fetchAll() {
       this.loading = true;
       this.error = null;
       try {
-        const res = await api.get("/clients");
-        this.clients = res.data;
-      } catch (err) {
-        this.error = err.response?.data?.message || err.message;
+        const { data } = await api.get("/clients");
+        this.items = Array.isArray(data) ? data : (data?.data || []);
+      } catch (e) {
+        this.error = e.response?.data?.message || e.message;
+        throw e;
       } finally {
         this.loading = false;
       }
     },
 
-    async addClient(client) {
-      this.error = null;
-      try {
-        const res = await api.post("/clients", client);
-        this.clients.push(res.data);
-        return res.data;
-      } catch (err) {
-        this.error = err.response?.data?.message || err.message;
-        throw err;
-      }
+    async getOne(id) {
+      const { data } = await api.get(`/clients/${id}`);
+      return data;
     },
 
-    async updateClient(id, client) {
-      this.error = null;
-      try {
-        const res = await api.put(`/clients/${id}`, client);
-        const index = this.clients.findIndex(c => c.id === id);
-        if (index !== -1) this.clients[index] = res.data;
-        return res.data;
-      } catch (err) {
-        this.error = err.response?.data?.message || err.message;
-        throw err;
-      }
+    async create(payload) {
+      const { data } = await api.post("/clients", payload);
+      this.items.push(data);
+      return data;
     },
 
-    async deleteClient(id) {
-      this.error = null;
-      try {
-        await api.delete(`/clients/${id}`);
-        this.clients = this.clients.filter(c => c.id !== id);
-      } catch (err) {
-        this.error = err.response?.data?.message || err.message;
-        throw err;
-      }
+    async update(id, payload) {
+      const { data } = await api.put(`/clients/${id}`, payload);
+      const idx = this.items.findIndex((x) => x.id === data.id);
+      if (idx > -1) this.items[idx] = data;
+      return data;
+    },
+
+    async remove(id) {
+      await api.delete(`/clients/${id}`);
+      this.items = this.items.filter((x) => x.id !== id);
     },
   },
 });

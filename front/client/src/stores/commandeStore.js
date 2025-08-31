@@ -1,35 +1,50 @@
-// src/stores/commandeStore.js
+// client/src/stores/commandeStore.js
 import { defineStore } from "pinia";
 import api from "../api";
 
-export const useCommandeStore = defineStore("commandeStore", {
+export const useCommandeStore = defineStore("commande", {
   state: () => ({
-    commandes: [],
+    items: [],
+    loading: false,
+    error: null,
   }),
+
   actions: {
-    async fetchCommandes() {
+    async fetchAll() {
+      this.loading = true;
+      this.error = null;
       try {
-        const response = await api.get("/commandes");
-        this.commandes = response.data;
-      } catch (error) {
-        console.error("Erreur lors du chargement des commandes", error);
+        const { data } = await api.get("/commandes");
+        this.items = Array.isArray(data) ? data : (data?.data || []);
+      } catch (e) {
+        this.error = e.response?.data?.message || e.message;
+        throw e;
+      } finally {
+        this.loading = false;
       }
     },
-    async addCommande(commande) {
-      try {
-        const response = await api.post("/commandes", commande);
-        this.commandes.push(response.data);
-      } catch (error) {
-        console.error("Erreur lors de l’ajout d’une commande", error);
-      }
+
+    async getOne(id) {
+      const { data } = await api.get(`/commandes/${id}`);
+      return data;
     },
-    async deleteCommande(id) {
-      try {
-        await api.delete(`/commandes/${id}`);
-        this.commandes = this.commandes.filter(c => c.id !== id);
-      } catch (error) {
-        console.error("Erreur lors de la suppression de la commande", error);
-      }
-    }
-  }
+
+    async create(payload) {
+      const { data } = await api.post("/commandes", payload);
+      this.items.push(data);
+      return data;
+    },
+
+    async update(id, payload) {
+      const { data } = await api.put(`/commandes/${id}`, payload);
+      const idx = this.items.findIndex((x) => x.id === data.id);
+      if (idx > -1) this.items[idx] = data;
+      return data;
+    },
+
+    async remove(id) {
+      await api.delete(`/commandes/${id}`);
+      this.items = this.items.filter((x) => x.id !== id);
+    },
+  },
 });
