@@ -1,59 +1,57 @@
-// client/src/stores/authStore.js
 import { defineStore } from "pinia";
-import api from "../api";
+import api from "@/api";
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
     user: null,
     token: localStorage.getItem("token") || null,
-    loading: false,
-    error: null,
   }),
 
-  getters: {
-    isAuthenticated: (s) => !!s.token,
-  },
-
   actions: {
-    async login(email, password) {
-      this.loading = true;
-      this.error = null;
+    async register(nom, email, password) {
       try {
-        const { data } = await api.post("/auth/login", { email, password });
-        // Attendu: { token: "...", user: {...} }
-        this.token = data.token;
-        localStorage.setItem("token", data.token);
-        this.user = data.user || null;
-        return true;
-      } catch (e) {
-        this.error = e.response?.data?.message || "Échec de connexion";
-        return false;
-      } finally {
-        this.loading = false;
+        const res = await api.post("/register", {
+          nom,
+          email,
+          password,
+        });
+
+        this.user = res.data.user;
+        this.token = res.data.token;
+        localStorage.setItem("token", this.token);
+      } catch (err) {
+        console.error("Erreur register:", err.response?.data || err);
+        throw err;
       }
     },
 
-    async fetchMe() {
-      if (!this.token) return null;
+    async login(email, password) {
       try {
-        const { data } = await api.get("/auth/me");
-        this.user = data || null;
-        return this.user;
-      } catch {
-        return null;
+        const res = await api.post("/login", { email, password });
+
+        this.user = res.data.user;
+        this.token = res.data.token;
+        localStorage.setItem("token", this.token);
+      } catch (err) {
+        console.error("Erreur login:", err.response?.data || err);
+        throw err;
       }
     },
 
     async logout() {
       try {
-        await api.post("/auth/logout");
-      } catch {
-        // pas grave si ça échoue
+        await api.post("/logout");
+      } catch (err) {
+        console.error("Erreur logout:", err.response?.data || err);
       } finally {
-        localStorage.removeItem("token");
-        this.token = null;
         this.user = null;
+        this.token = null;
+        localStorage.removeItem("token");
       }
+    },
+
+    isAuthenticated() {
+      return !!this.token;
     },
   },
 });

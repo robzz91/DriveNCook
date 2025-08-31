@@ -1,12 +1,13 @@
 <template>
   <div class="auth-container">
-    <h1>Connexion</h1>
-    <form @submit.prevent="handleLogin">
+    <h1>Inscription</h1>
+    <form @submit.prevent="handleRegister">
+      <input v-model="nom" type="text" placeholder="Nom complet" required />
       <input v-model="email" type="email" placeholder="Email" required />
       <input v-model="password" type="password" placeholder="Mot de passe" required />
-      <button type="submit">Se connecter</button>
+      <button type="submit">S'inscrire</button>
     </form>
-    <p>Pas encore inscrit ? <router-link to="/register">Créer un compte</router-link></p>
+    <p>Déjà inscrit ? <router-link to="/login">Connexion</router-link></p>
   </div>
 </template>
 
@@ -15,17 +16,18 @@ import { ref } from "vue";
 import { useAuthStore } from "@/stores/authStore";
 import { useRouter } from "vue-router";
 
+const nom = ref("");
 const email = ref("");
 const password = ref("");
 const authStore = useAuthStore();
 const router = useRouter();
 
-const handleLogin = async () => {
+const handleRegister = async () => {
   try {
-    await authStore.login(email.value, password.value);
+    await authStore.register(nom.value, email.value, password.value);
     router.push("/");
   } catch (e) {
-    alert("Erreur de connexion");
+    alert("Erreur inscription");
   }
 };
 </script>
@@ -48,7 +50,7 @@ input {
 button {
   width: 100%;
   padding: 10px;
-  background: #28a745;
+  background: #2d89ef;
   color: white;
   border: none;
   border-radius: 5px;
