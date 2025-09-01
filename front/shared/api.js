@@ -26,6 +26,12 @@ async function request(method, path, body, opts = {}) {
   return data;
 }
 
+function parseFilenameFromContentDisposition(disposition){
+  if (!disposition) return ''
+  const m = /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i.exec(disposition)
+  return decodeURIComponent(m?.[1] || m?.[2] || '')
+}
+
 export const api = {
   login: async (email, password) => {
     const res = await request('POST', '/login.php', { email, password });
@@ -46,7 +52,10 @@ export const api = {
     const token = getToken();
     const res = await fetch(`${API_URL}${path}`, { headers: { Authorization: `Bearer ${token}` } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.blob();
+    const blob = await res.blob();
+    const disposition = res.headers.get('Content-Disposition') || ''
+    const filename = parseFilenameFromContentDisposition(disposition)
+    return { blob, filename };
   },
   getToken,
   setToken,
