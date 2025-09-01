@@ -194,6 +194,9 @@ try {
         case $path === 'sales' && $method === 'POST':
             SalesController::store(read_input());
             break;
+        case preg_match('#^sales/(\d+)$#', $path, $m) && $method === 'DELETE':
+            SalesController::destroy((int)$m[1]);
+            break;
 
         // Users (admin-only)
         case $path === 'users' && $method === 'GET':

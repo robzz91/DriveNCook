@@ -33,6 +33,20 @@ class SaleModel {
         ]);
         return (int)$pdo->lastInsertId();
     }
+
+    public static function find(int $id): ?array {
+        $pdo = db();
+        $stmt = $pdo->prepare('SELECT id, franchisee_id, amount, sold_at FROM sales WHERE id = ?');
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+        return $row === false ? null : $row;
+    }
+
+    public static function delete(int $id): void {
+        $pdo = db();
+        $stmt = $pdo->prepare('DELETE FROM sales WHERE id = ?');
+        $stmt->execute([$id]);
+    }
 }
 
 

@@ -32,6 +32,17 @@ class SalesController {
         self::json(['success'=>true,'data'=>$data,'error'=>null],201);
     }
 
+    public static function destroy(int $id): void {
+        $user = auth_require();
+        $row = SaleModel::find($id);
+        if (!$row) { self::json(['success'=>false,'data'=>null,'error'=>'Not Found'],404); return; }
+        if (!auth_is_admin($user) && (int)$row['franchisee_id'] !== (int)($user['franchisee_id'] ?? 0)) {
+            self::json(['success'=>false,'data'=>null,'error'=>'Accès interdit'],403); return;
+        }
+        SaleModel::delete($id);
+        self::json(['success'=>true,'data'=>['deleted'=>true],'error'=>null]);
+    }
+
     private static function json($data, int $code=200): void {
         http_response_code($code);
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
