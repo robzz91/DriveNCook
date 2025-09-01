@@ -1,73 +1,78 @@
+// client/src/router/index.js
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "@/views/HomeView.vue";
+import { useAuthStore } from "@/stores/authStore";
+
+// Views
+import Register from "@/views/RegisterView.vue";
+import Login from "@/views/LoginView.vue";
 import ClientsView from "@/views/ClientsView.vue";
 import PlatsView from "@/views/PlatsView.vue";
 import CommandesView from "@/views/CommandesView.vue";
 import EvenementsView from "@/views/EvenementsView.vue";
-import LoginView from "@/views/LoginView.vue";
-import RegisterView from "@/views/RegisterView.vue";
 
-import { useAuthStore } from "@/stores/authStore";
-
-// Définition des routes
 const routes = [
   {
-    path: "/",
-    name: "home",
-    component: HomeView,
-  },
-  {
-    path: "/clients",
-    name: "clients",
-    component: ClientsView,
-    meta: { requiresAuth: true }, // protégé
-  },
-  {
-    path: "/plats",
-    name: "plats",
-    component: PlatsView,
-    meta: { requiresAuth: true }, // protégé
-  },
-  {
-    path: "/commandes",
-    name: "commandes",
-    component: CommandesView,
-    meta: { requiresAuth: true }, // protégé
-  },
-  {
-    path: "/evenements",
-    name: "evenements",
-    component: EvenementsView,
-    meta: { requiresAuth: true }, // protégé
+    path: "/register",
+    name: "Register",
+    component: Register,
+    meta: { guest: true },
   },
   {
     path: "/login",
-    name: "login",
-    component: LoginView,
+    name: "Login",
+    component: Login,
+    meta: { guest: true },
   },
   {
-    path: "/register",
-    name: "register",
-    component: RegisterView,
+    path: "/clients",
+    name: "Clients",
+    component: ClientsView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/plats",
+    name: "Plats",
+    component: PlatsView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/commandes",
+    name: "Commandes",
+    component: CommandesView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/evenements",
+    name: "Evenements",
+    component: EvenementsView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    redirect: "/login",
   },
 ];
 
-// Création du router
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes,
 });
 
-// Middleware global
-router.beforeEach((to, from, next) => {
+/**
+ * Navigation guard global
+ */
+router.beforeEach((to) => {
   const auth = useAuthStore();
 
-  if (to.meta.requiresAuth && !auth.isAuthenticated()) {
-    // Si la route est protégée et que l'utilisateur n'est pas connecté
-    next("/login");
-  } else {
-    next();
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return { name: "Login" };
   }
+
+  if (to.meta.guest && auth.isAuthenticated) {
+    return { name: "Clients" }; // ou autre route par défaut après login
+  }
+
+  return true;
 });
 
 export default router;

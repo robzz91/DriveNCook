@@ -1,57 +1,64 @@
+// client/src/store/authStore.js
 import { defineStore } from "pinia";
-import api from "@/api";
+import { ref, computed } from "vue";
+import api, { setToken, clearToken, getUser } from "@/api";
 
-export const useAuthStore = defineStore("auth", {
-  state: () => ({
-    user: null,
-    token: localStorage.getItem("token") || null,
-  }),
+export const useAuthStore = defineStore("auth", () => {
+  const token = ref(localStorage.getItem("token") || null);
+  const user = ref(getUser());
 
-  actions: {
-    async register(nom, email, password) {
-      try {
-        const res = await api.post("/register", {
-          nom,
-          email,
-          password,
-        });
+  const isAuthenticated = computed(() => !!token.value);
 
-        this.user = res.data.user;
-        this.token = res.data.token;
-        localStorage.setItem("token", this.token);
-      } catch (err) {
-        console.error("Erreur register:", err.response?.data || err);
-        throw err;
+  async function login(email, password) {
+    try {
+      const { data } = await api.post("/login.php", { email, password });
+      const t =
+        data?.token || data?.access_token || data?.data?.token || null;
+      const u = data?.user || data?.data?.user || null;
+
+      if (!t) throw new Error("Token manquant dans la réponse API.");
+
+      setToken(t, u);
+      token.value = t;
+      user.value = u;
+      return true;
+    } catch (err) {
+      console.error("[AUTH] login failed", err);
+      throw err;
+    }
+  }
+
+  async function register(payload) {
+    try {
+      const { data } = await api.post("/register.php", payload);
+      const t =
+        data?.token || data?.access_token || data?.data?.token || null;
+      const u = data?.user || data?.data?.user || null;
+
+      if (t) {
+        setToken(t, u);
+        token.value = t;
+        user.value = u;
       }
-    },
+      return true;
+    } catch (err) {
+      console.error("[AUTH] register failed", err);
+      throw err;
+    }
+  }
 
-    async login(email, password) {
-      try {
-        const res = await api.post("/login", { email, password });
+  function logout() {
+    clearToken();
+    token.value = null;
+    user.value = null;
+  }
 
-        this.user = res.data.user;
-        this.token = res.data.token;
-        localStorage.setItem("token", this.token);
-      } catch (err) {
-        console.error("Erreur login:", err.response?.data || err);
-        throw err;
-      }
-    },
-
-    async logout() {
-      try {
-        await api.post("/logout");
-      } catch (err) {
-        console.error("Erreur logout:", err.response?.data || err);
-      } finally {
-        this.user = null;
-        this.token = null;
-        localStorage.removeItem("token");
-      }
-    },
-
-    isAuthenticated() {
-      return !!this.token;
-    },
-  },
+  return {
+    token,
+    user,
+    isAuthenticated,
+    login,
+    register,
+    logout,
+  };
 });
