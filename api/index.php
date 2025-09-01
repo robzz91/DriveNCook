@@ -178,6 +178,9 @@ try {
         case $path === 'register.php' && $method === 'POST':
             require __DIR__.'/register.php';
             return;
+        case $path === 'me.php':
+            require __DIR__.'/me.php';
+            return;
 
         // Sales report PDF (file-like endpoint)
         case $path === 'sales/report.php':
