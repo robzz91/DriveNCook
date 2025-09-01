@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Camions</title>
+    <style>
+      body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;background:#fff;margin:0}
+      header{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding:12px}
+      h1{color:#d32;margin:0}
+      .bar{display:flex;gap:8px;align-items:center;padding:12px;border-bottom:1px solid #eee}
+      input{padding:8px;border:1px solid #ccc;border-radius:6px}
+      table{width:100%;border-collapse:separate;border-spacing:0}
+      thead th{position:sticky;top:0;background:#111;color:#fff;border-bottom:3px solid #ffcc00}
+      th,td{padding:12px 14px;border-bottom:1px solid #eee;text-align:left;font-size:15px}
+      tbody tr:nth-child(odd){background:#fafafa}
+      tbody tr:hover{background:#fff8e1}
+      .btn{background:#ffcc00;border:none;padding:6px 10px;border-radius:6px}
+      .btn-danger{background:#c00;color:#fff}
+      dialog{border:2px solid #000;border-radius:8px;padding:16px}
+      label{display:block;margin-top:8px}
+    </style>
+  </head>
+  <body>
+    <header style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;margin:0;background:#111;color:#fff;border-bottom:3px solid #ffcc00">
+      <h1 style="color:#ffcc00;margin:0">Drive'N'Cook — Administration - Camions</h1>
+      <nav style="display:flex;gap:10px;align-items:center">
+        <a href="./index.html" style="background:#222;color:#fff;padding:6px 10px;border-radius:6px;text-decoration:none;border:1px solid #333">Accueil</a>
+        <a href="./users.html" style="background:#222;color:#fff;padding:6px 10px;border-radius:6px;text-decoration:none;border:1px solid #333">Utilisateurs</a>
+        <a href="./franchisees.html" style="background:#222;color:#fff;padding:6px 10px;border-radius:6px;text-decoration:none;border:1px solid #333">Franchisés</a>
+        <a href="./warehouses.html" style="background:#222;color:#fff;padding:6px 10px;border-radius:6px;text-decoration:none;border:1px solid #333">Entrepôts</a>
+        <a href="./trucks.html" style="background:#222;color:#fff;padding:6px 10px;border-radius:6px;text-decoration:none;border:1px solid #333">Camions</a>
+        <a href="./supplies.html" style="background:#222;color:#fff;padding:6px 10px;border-radius:6px;text-decoration:none;border:1px solid #333">Approvisionnements</a>
+        <a href="./sales.html" style="background:#222;color:#fff;padding:6px 10px;border-radius:6px;text-decoration:none;border:1px solid #333">Ventes</a>
+      </nav>
+    </header>
+    <section class="bar">
+      <input id="tSearch" placeholder="Rechercher camion (immatriculation)" />
+      <button id="btnNew" class="btn">Nouveau</button>
+      <span id="err" style="color:#c00"></span>
+    </section>
+    <section style="overflow:auto;max-height:calc(100vh - 260px)">
+      <table>
+        <thead><tr><th>Immatriculation</th><th>Statut</th><th>Franchisé</th><th>Dernier service</th><th>Actions</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </section>
+
+    <dialog id="dlgNew">
+      <h3>Nouveau camion</h3>
+      <label>Immatriculation<input id="tPlate"/></label>
+      <label>Statut<input id="tStatus" value="active"/></label>
+      <label>Franchisé ID (optionnel)<input id="tFrId" type="number"/></label>
+      <label>Dernier service<input id="tLast" type="date"/></label>
+      <div style="margin-top:12px;display:flex;gap:8px"><button id="dlgSaveNew" class="btn">Créer</button><button id="dlgCloseNew" class="btn">Annuler</button></div>
+    </dialog>
+
+    <dialog id="dlgEdit">
+      <h3 id="dlgTitle">Modifier</h3>
+      <label>Immatriculation<input id="tPlateE"/></label>
+      <label>Statut<input id="tStatusE"/></label>
+      <label>Franchisé ID (optionnel)<input id="tFrIdE" type="number"/></label>
+      <label>Dernier service<input id="tLastE" type="date"/></label>
+      <div style="margin-top:12px;display:flex;gap:8px"><button id="dlgSaveEdit" class="btn">Enregistrer</button><button id="dlgCloseEdit" class="btn">Annuler</button></div>
+    </dialog>
+
+    <dialog id="dlgMaint">
+      <h3>Maintenance</h3>
+      <div id="maintList" style="max-height:200px;overflow:auto;border:1px solid #eee;padding:8px;margin-bottom:8px"></div>
+      <label>Titre<input id="mTitle"/></label>
+      <label>Description<input id="mDesc"/></label>
+      <label>Coût<input id="mCost" type="number" step="0.01"/></label>
+      <label>Date<input id="mDate" type="date"/></label>
+      <div style="margin-top:12px;display:flex;gap:8px"><button id="dlgSaveMaint" class="btn">Ajouter</button><button id="dlgCloseMaint" class="btn">Fermer</button></div>
+    </dialog>
+
+    <script type="module" src="./trucks.js"></script>
+  </body>
+  </html>
+
+

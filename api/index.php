@@ -196,8 +196,17 @@ try {
             break;
 
         // Users (admin-only)
+        case $path === 'users' && $method === 'GET':
+            UsersController::index();
+            break;
         case $path === 'users' && $method === 'POST':
             UsersController::store(read_input());
+            break;
+        case preg_match('#^users/(\d+)$#', $path, $m) && $method === 'PUT':
+            UsersController::update((int)$m[1]);
+            break;
+        case preg_match('#^users/(\d+)$#', $path, $m) && $method === 'DELETE':
+            UsersController::destroy((int)$m[1]);
             break;
 
         default:
